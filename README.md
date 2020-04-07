@@ -24,7 +24,9 @@ Crea Una economía fácil y sencilla de usar para tu bot.
 
  
 No olvides que si tienes un error o propuestas para mejorar este NPM
-Solo tienes que unirte a este servidor de [discord]( https://discord.gg/HWwBD6F).
+Solo tienes que unirte a este servidor de 
+[Zeew Discord](https://discord.gg/3K8pdmf).
+[KamerrEzz Discord](https://discord.gg/PBDbHGq).
 
 Gracias por Escoger este NPM
 
@@ -49,6 +51,7 @@ const eco = new zeco.economia()
 | [mostrar](#Eco-mostrar) | Muestra el dinero del usuario
 | [agregar](#Eco-agregar) | Agrega dinero aun usuario|
 | [quitar](#Eco-quitar) | Elimina el dinero de un usuario|
+| [eliminar](#Eco-eliminar) | Elimina la economia del servidor|
 | [comprar](#Eco-comprar) | Comprar En la tienda|
 
 <a name="Eco-mostrar" />
@@ -101,6 +104,24 @@ eco.quitar(servidor.id, miembro.id, 1500)
 ```js
 ```
 
+<a name="Eco-eliminar" />
+
+#### Economia: Eliminar
+
+```js
+eco.eliminar(clave)
+```
+
+* clave -ID del servidor
+
+```js
+const eco = new zeco.economia()
+eco.eliminar(servidor.id)
+```
+
+```js
+```
+
 <a name="Eco-comprar" />
 
 #### Economia: Comprar
@@ -130,7 +151,8 @@ const td = new zeco.tienda()
 | ------ | ------ |
 | [Mostrar](#TD-mostrar) | Muestra Items a la tienda|
 | [Agregar](#TD-agregar) | Agrega Items a la tienda|
-| [Eliminar](#TD-quitar) | Elimina Items de la tienda|
+| [Eliminar](#TD-eliminar) | Elimina la tienda del servidor|
+| [quitar](#TD-quitar) | Elimina Items de la tienda|
 
 <a name="TD-mostrar" />
 
@@ -163,9 +185,9 @@ td.agregar(servidor.id, "Canal Propio", "un canal privado para ti", 20000)
 ```
 ```js
 ```
-<a name="TD-quitar" />
+<a name="TD-eliminar" />
 
-#### Tienda: Eliminar
+#### Tienda: eliminar
 
 ```js
 td.eliminar(clave, item)
@@ -176,8 +198,27 @@ td.eliminar(clave, item)
 const td = new zeco.tienda()
 td.eliminar(servidor.id, 1)
 ```
+
 ```js
 ```
+
+<a name="TD-quitar" />
+
+#### Tienda: quitar
+
+```js
+td.quitar(clave, item)
+```
+* clave -ID del servidor
+* item - Numero del Item de la tienda
+```js
+const td = new zeco.tienda()
+td.quitar(servidor.id, 1)
+```
+
+```js
+```
+
 <a name="dinero" />
 
 ### Dinero
@@ -285,9 +326,8 @@ inv.vercompras(servidor.id,usuario.id)
   ```
     * ROL: Owner
     * ID Discord: 403695999941345280
-    * Clan: ZeaterNight
-    * Redes Sociales: @KamerrOficial
-    * Portafolio: behance.net/kamerroficial
+    * Redes Sociales: @KamerrEzz
+    * Portafolio: behance.net/KamerrEzz
   ```
  * @ValerynR  
 ```

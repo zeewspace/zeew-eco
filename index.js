@@ -6,7 +6,7 @@ var colors = require('colors');
 
 console.log(`╔[══════════════ Zeew Economy ══════════════]╗
 ╠[══════ Economia Basica Para tu Bot ═══════]╣
-╚[══════════ Vercion 0.2.0 Beta ════════════]╝`.rainbow)
+╚[═════════════ Vercion Beta ═══════════════]╝`)
 
 module.exports = {
     tienda,

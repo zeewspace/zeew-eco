@@ -36,6 +36,18 @@ function economia() {
     }
 }
 
+function eliminar(clave){
+    let db = require(`${appdir}/zedb/economia.json`);
+    if (!clave) throw new ZeewError("Debes Colocar la Id de un servidor".cyan);
+
+    if(!db[clave]){
+        return "No existe en la base de datos"
+    }
+    delete(db[clave]);
+    save(db)
+    return `Economia eliminado para ${clave}`
+}
+
 function agregar(clave, id, cantidad) {
     let db = require(`${appdir}/zedb/economia.json`)
     if (!clave) throw new ZeewError("Debes Colocar la Id de un servidor".cyan)
@@ -65,7 +77,7 @@ function agregar(clave, id, cantidad) {
     db[clave][id].dinero += cantidad
     let ahora = db[clave][id].dinero
     save(db)
-    return `$${ahora}`;
+    return Number(ahora);
 
 }
 
@@ -98,7 +110,7 @@ function quitar(clave, id, cantidad) {
     db[clave][id].dinero -= cantidad
     let ahora = db[clave][id].dinero
     save(db)
-    return `$${ahora}`
+    return Number(ahora)
 }
 
 function comprar(clave, id, item){
@@ -142,10 +154,14 @@ function comprar(clave, id, item){
 function mostrar(clave, id){
     let db = require(`${appdir}/zedb/economia.json`)
     if(!clave) throw new ZeewError("Ingresa la clave / ID del servidor".cyan)
-    if(!id) throw new ZeewError('Ingresa la ID del servidor'.cyan)
+    if(!id) throw new ZeewError('Ingresa la ID del usuario'.cyan)
 
-    clave = String(clave)
-    id = String(id)
+    clave = Number(clave)
+    id = Number(id)
+    if(!db[clave]){
+        db[clave] = {};
+        return false
+    }
 
     let dinero = db[clave][id] ? db[clave][id].dinero : 0;
 
@@ -159,3 +175,4 @@ economia.prototype.agregar = agregar;
 economia.prototype.quitar = quitar;
 economia.prototype.comprar = comprar;
 economia.prototype.mostrar = mostrar;
+economia.prototype.eliminar = eliminar;

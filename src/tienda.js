@@ -87,7 +87,7 @@ function agregar(clave, name, desc, price) {
 
 }
 
-function eliminar(clave, id) {
+function quitar(clave, id) {
     let db = require(`${appdir}/zedb/tienda.json`)
 
     if (!clave) throw new ZeewError("Debe Intrudicir una clave / nombre  / servidor".yellow)
@@ -138,7 +138,7 @@ function eliminar(clave, id) {
     return "Eliminado Correctamente"
 }
 
-function mostrar(clave,id){
+function mostrar(clave){
     let db = require(`${appdir}/zedb/tienda.json`)
     if(!clave) throw new ZeewError("Ingresa una clave / ID del servidor".cyan);
 
@@ -153,6 +153,20 @@ function mostrar(clave,id){
     }
     return msg;
 }
+
+function eliminar(clave){
+    let db = require(`${appdir}/zedb/tienda.json`)
+    if(!clave) throw new ZeewError("Ingresa una clave / ID del servidor".cyan);
+
+    if(!db[clave]){
+        return "No existe en la db"
+    }
+
+    delete db[clave]
+    save(db)
+    return "Tienda eliminada"
+}
 tienda.prototype.agregar = agregar;
-tienda.prototype.eliminar = eliminar;
+tienda.prototype.eliminar = quitar;
 tienda.prototype.mostrar = mostrar;
+tienda.prototype.eliminar = eliminar;
