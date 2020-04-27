@@ -167,6 +167,6 @@ function eliminar(clave){
     return "Tienda eliminada"
 }
 tienda.prototype.agregar = agregar;
-tienda.prototype.eliminar = quitar;
+tienda.prototype.quitar = quitar;
 tienda.prototype.mostrar = mostrar;
 tienda.prototype.eliminar = eliminar;
