@@ -1,178 +1,217 @@
-const fs = require('fs');
-const path = require('path');
-const mkdirp = require('mkdirp')
-var colors = require('colors');
-const {
-    ZeewError
-} = require('../utils/ZeewError');
-const appdir = path.dirname(require.main.filename);
+class Economy {
+  constructor() {
+    this.model = require("./models/eco");
+    this.error = (e) => {
+      console.log("[══════ Zeew Economia: " + e.message + " ═══════]");
+    };
+    this.store = require("./models/store");
+    this.inventory = require("./models/inventory");
+  }
 
+  /**
+   *
+   * @param {*} user ID del usuarios
+   * @param {*} guild Id del servidor
+   * @return {Number} Cantidad de dinero
+   */
+  async ver(user, guild) {
+    let db = await this.model.findOne({ user: user, guild: guild });
 
-module.exports = {
-    economia
-}
-
-function save(data) {
-    fs.writeFile('./zedb/economia.json', JSON.stringify(data, null, " "), (e) => {
-        if (e) throw new ZeewError("No se Ha Podido Guardar Correctamente. \n Error: " + e);
-    })
-}
-
-function economia() {
-    let direction = path.dirname(require.main.filename).split("/")
-    if (!fs.existsSync(`${direction.join("/")}/zedb`)) {
-        mkdirp(`${direction.join("/")}/zedb`, (e) => {
-            if (e) throw new ZeewError("No se pudo crear la carpeta zedb para guardar las bases de datos de la tienda")
-        })
-        console.log("[Zeew.Economia]".green+" Carpeta ZEDB creado correctamente.".cyan)
+    if (db) {
+      return db.money;
+    } else {
+      return 0;
     }
-    if (!fs.existsSync('./zedb/economia.json')) {
-        fs.writeFileSync('./zedb/economia.json', JSON.stringify({}, null, 2), {
-            flag: 'wx'
-        }, function (err) {
-            if (err) throw new ZeewError(`No se Creo la base de datos de la tienda.`.cyan+`\n error: ${err}`)
+  }
+
+  /**
+   *
+   * @param {*} user ID del usuario
+   * @param {*} guild ID del servidor
+   * @param {*} money Cantidad de dinero a agregar
+   * @return {Number} Cantidad de dinero
+   */
+  async agregar(user, guild, money) {
+    let db = await this.model.findOne({ user: user, guild: guild });
+
+    if (db) {
+      try {
+        let add = parseInt(db.money) + parseInt(money);
+        await this.model.updateOne(
+          { user: user, guild: guild },
+          { money: add }
+        );
+
+        return add;
+      } catch (error) {
+        this.error(error);
+      }
+    } else {
+      let add = new this.model({
+        user,
+        guild,
+        money,
+      });
+
+      try {
+        await add.save();
+        return money;
+      } catch (e) {
+        this.error(e);
+      }
+    }
+  }
+  /**
+   *
+   * @param {*} user ID del usuario
+   * @param {*} guild ID del servidor
+   * @param {*} money Cantidad de dinero a quitar
+   * @return {Number} Cantidad de dinero
+   */
+  async remover(user, guild, money) {
+    let db = await this.model.findOne({ user: user, guild: guild });
+
+    if (db) {
+      try {
+        let remove = parseInt(db.money) - parseInt(money);
+        await this.model.updateOne(
+          { user: user, guild: guild },
+          { money: remove }
+        );
+
+        return remove;
+      } catch (error) {
+        this.error(error);
+      }
+    } else {
+      return 0;
+    }
+  }
+
+  /**
+   *
+   * @param {*} user ID del usuario
+   * @param {*} guild ID del servidor
+   */
+  async reiniciar(user, guild) {
+    try {
+      await this.model.deleteOne({ user: user, guild: guild });
+      return true;
+    } catch (error) {
+      this.error(error);
+    }
+  }
+
+  /**
+   *
+   * @param {*} user ID del usuario
+   * @param {*} guild ID del servidor
+   * @param {*} id ID del item en la tiendam
+   */
+  async comprar(user, guild, id) {
+    try {
+      let db = await this.model.findOne({ user: user, guild: guild });
+      let store = await this.store.findOne({ guild: guild });
+      let inventory = await this.inventory.findOne({
+        user: user,
+        guild: guild,
+      });
+      let item = store.store
+        .filter((a) => a.id === id)
+        .map((a) => ({
+          name: a.name,
+          price: a.price,
+          id: a.id,
+          role: a.role,
+        }))[0];
+      if (!store) return { tienda: false };
+      if (!db) return { user: false };
+      if (!item) return { item: false };
+
+      let removemoney = db.money - item.price;
+
+      await this.remover(user, guild,removemoney)
+
+      let iv;
+      if (item.role) {
+        iv = {
+          id,
+          name: item.name,
+          rol: item.role,
+        };
+      } else {
+        iv = {
+          id,
+          name: item.name,
+        };
+      }
+
+      if (inventory) {
+        await this.inventory.updateOne({ user: user, guild: guild},
+          {
+            $push: {
+              inventory: [iv]
+            }
+          })
+          return {
+            item,
+            money: parseInt(db.money),
+            newmoney: removemoney
+          }
+      } else {
+        let inventario = new this.inventory({
+          user,
+          guild,
+          inventory: [iv],
         });
-        console.log("[Zeew.Economia]".green+" Base de Datos de Economia Creado Correctamente".cyan)
-    }
-}
 
-function eliminar(clave){
-    let db = require(`${appdir}/zedb/economia.json`);
-    if (!clave) throw new ZeewError("Debes Colocar la Id de un servidor".cyan);
-
-    if(!db[clave]){
-        return "No existe en la base de datos"
-    }
-    delete(db[clave]);
-    save(db)
-    return `Economia eliminado para ${clave}`
-}
-
-function agregar(clave, id, cantidad) {
-    let db = require(`${appdir}/zedb/economia.json`)
-    if (!clave) throw new ZeewError("Debes Colocar la Id de un servidor".cyan)
-    if (!id) throw new ZeewError("Debes Colocar la ID de un usuario".cyan)
-    if (!cantidad) throw new ZeewError("Debes colocar la cantidad que le quieres dar al usuario".cyan)
-
-    if (isNaN(cantidad)) throw new ZeewError("Eso no es un numero".cyan)
-
-    if (cantidad <= 0 || cantidad == Infinity) return "No puedes poner un numero menor a cero o muy grance"
-
-    id = String(id)
-    clave = String(clave)
-    cantidad = Number(cantidad)
-
-    if (!db[clave]) {
-        db[clave] = {};
-        save(db)
-    }
-
-    if (!db[clave][id]) {
-        db[clave][id] = {
-            dinero: Number(cantidad)
+        await inventario.save();
+        return {
+          item,
+          money: parseInt(db.money),
+          newmoney: removemoney
         }
-        save(db)
+      }
+    } catch (error) {
+      this.error(error);
     }
+  }
+  /**
+   *
+   * @param {*} user ID del usuario
+   * @param {Numer} guild ID del servidor
+   * @param {*} count Cantidad maxima aleatoriamente
+   */
+  async trabajar(user, guild, count) {
+    let db = await this.model.findOne({ user: user, guild: guild });
+    let randommonet = Math.floor(Math.random() * count);
+    if (db) {
+      try {
+        let work = parseInt(db.money) + parseInt(randommonet);
+        await this.model.updateOne(
+          { user: user, guild: guild },
+          { money: work }
+        );
 
-    db[clave][id].dinero += cantidad
-    let ahora = db[clave][id].dinero
-    save(db)
-    return Number(ahora);
+        return work;
+      } catch (error) {
+        this.error(error);
+      }
+    } else {
+      let add = new this.model({
+        user,
+        guild,
+        money: randommonet,
+      });
 
+      try {
+        await add.save();
+        return randommonet;
+      } catch (e) {
+        this.error(e);
+      }
+    }
+  }
 }
 
-function quitar(clave, id, cantidad) {
-    let db = require(`${appdir}/zedb/economia.json`)
-    if (!clave) throw new ZeewError("Debes Colocar la Id de un servidor".cyan)
-    if (!id) throw new ZeewError("Debes Colocar la ID de un usuario".cyan)
-    if (!cantidad) throw new ZeewError("Debes colocar la cantidad que le quieres dar al usuario".cyan)
-
-    if (isNaN(cantidad)) throw new ZeewError("Eso no es un numero".cyan)
-
-    if (cantidad <= 0 || cantidad == Infinity) return "No puedes poner un numero menor a cero o muy grance"
-
-    id = String(id)
-    clave = String(clave)
-    cantidad = Number(cantidad)
-
-    if (!db[clave]) {
-        db[clave] = {};
-        save(db)
-    }
-
-    let msg;
-    if (!db[clave][id]) {
-        return "No tienes dinero"
-    }
-
-    if(db[clave][id].dinero == 0) return "Tu dinero es 0, no puedes quitarle mas."
-
-    db[clave][id].dinero -= cantidad
-    let ahora = db[clave][id].dinero
-    save(db)
-    return Number(ahora)
-}
-
-function comprar(clave, id, item){
-    // let tdb = require(`${appdir}/zedb/tienda.json`)
-    if(!clave) return new ZeewError("Coloca una clave / ID de servidor".cyan)
-    if(!id) return new ZeewError("Coloca la ID del usuario".cyan)
-    if(!item) return new ZeewError("Coloca el item".cyan)
-
-    id = String(id)
-    item = String(item)
-    clave = String(clave)
-
-    if (!fs.existsSync('./zedb/tienda.json')) {
-        return "No hay Una Tienda en el servidor"
-        
-    }
-        
-    if (fs.existsSync('./zedb/tienda.json')) {
-        let db = require(`${appdir}/zedb/economia.json`.cyan)
-        let tdb = require(`${appdir}/zedb/tienda.json`.cyan)
-
-        let i = `item${item}`
-
-        let dinero = db[clave][id].dinero
-        let tienda = tdb[clave]
-
-        if(dinero < tienda.precio) return "No Tienes el dinero suficiente"
-        if(!tdb[clave].nombre[i]) return "No Existe Ese Item En la tienda"
-       
-        db[clave][id]={
-            dinero: dinero - tienda.precio[i]
-        }
-
-        save(db)
-        return `Compra Realizada: \nItem: ${tienda.nombre[i]} \nDescripcion: ${tienda.descripcion[i]}\nPrecion: $${tienda.precio[i]}`
-    }
-
-
-}
-
-function mostrar(clave, id){
-    let db = require(`${appdir}/zedb/economia.json`)
-    if(!clave) throw new ZeewError("Ingresa la clave / ID del servidor".cyan)
-    if(!id) throw new ZeewError('Ingresa la ID del usuario'.cyan)
-
-    clave = Number(clave)
-    id = Number(id)
-    if(!db[clave]){
-        db[clave] = {};
-        return false
-    }
-
-    let dinero = db[clave][id] ? db[clave][id].dinero : 0;
-
-    if(dinero == 0) return "No tienes dinero"
-
-    return dinero;
-
-}
-
-economia.prototype.agregar = agregar;
-economia.prototype.quitar = quitar;
-economia.prototype.comprar = comprar;
-economia.prototype.mostrar = mostrar;
-economia.prototype.eliminar = eliminar;
+module.exports = Economy;

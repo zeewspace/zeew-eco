@@ -1,16 +1,29 @@
-const {tienda} = require('./src/tienda');
-const {economia} = require('./src/economia');
-const {dinero} = require('./src/dinero');
-const {inventario} = require('./src/inventario');
-var colors = require('colors');
+const mongoose = require("mongoose");
+class Options {
+  constructor(URI) {
+    this._init(URI);
+  }
 
-console.log(`╔[══════════════ Zeew Economy ══════════════]╗
-╠[══════ Economia Basica Para tu Bot ═══════]╣
-╚[═════════════ Vercion Beta ═══════════════]╝`)
+  _init(URI) {
+    mongoose
+      .connect(URI, {
+        useNewUrlParser: true,
+        useUnifiedTopology: true,
+      })
+      .then(() => {
+        console.log("[══════ Zeew Economia ═══════]");
+    })
+      .catch((e) =>
+        console.log("[══════ Zeew Economia: " + e.message + " ═══════]")
+      );
+  }
+}
+
+
 
 module.exports = {
-    tienda,
-    economia,
-    dinero,
-    inventario
+    Options,
+    Economia: require('./src/economia'),
+    Tienda: require('./src/tienda'),
+    Inventario: require('./src/inventario')
 }
