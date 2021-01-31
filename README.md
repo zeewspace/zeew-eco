@@ -1,347 +1,283 @@
 ![Zeew Api](https://i.imgur.com/MP2bABn.png "Lo Mejor de Zeew y del C&P")
 
-# Zeew Eco!
+# ¡ZeewEco!
+  - Economía Fácil y sencilla!
+  - Tienda fácil de crear e intuitiva!
 
-  - Economía Fácil y sencilla
-  - Tienda Fácil sin limite
-
-
-Crea Una economía fácil y sencilla de usar para tu bot.
-
-> Muchos se complican demasiado hacer algo como esto,
-> ¿Por qué no ayudarles un poco?.
+¡Crea una economía fácil y sencilla de usar para tu bot, ahora con ZeewEco!
+¡Lo unico que necesitas en una base de datos de MongoDB!
 
 ## Informacion
-
 * **Constructores**
   * [Economía](#economia)
   * [Tienda](#tienda)
-  * [Dinero](#dinero)
-  * [Inventario](#Inventario)
-* **Zeew**
+  * [Inventario](#inventario)
+  
+* **Informacion Sobre Zeew**
   * [Staff](#staff)
   * [Proyectos](#proyectos)
 
- 
-No olvides que si tienes un error o propuestas para mejorar este NPM
-Solo tienes que unirte a este servidor de 
-[Zeew Discord](https://discord.gg/3K8pdmf).
-[KamerrEzz Discord](https://discord.gg/PBDbHGq).
+No olvides que si tienes un error o propuesta para mejorar este NPM, solo tienes que unirte a este servidor de [Discord](https://discord.gg/KnuCvHvrfG).
 
-Gracias por Escoger este NPM
+¡Gracias por confiar en Zeew!
 
->
-
-## instalación
-
+## Instalación y Configuración del NPM
 ```js
 npm i zeew-eco
 ```
-<a name="economia" />
+Tus primeras lineas de codigo deberan ser asi:
+```js
+const zeeweco = require('zeew-eco')
+new zeeeco.Options("mongodb+srv://")
+```
+**¡OJO! El constructor "Options" solo se debe usar 1 vez, se debe colocar en el archivo principal**
 
 ### Economia
-
 ```js
-const zeco = require('zeew-eco')
-const eco = new zeco.economia()
+const zeeweconomy = require('zeew-eco')
+const eco = new zeeweconomy.Economia()
 ```
 
 | Métodos | Descripción |
 | ------ | ------ |
-| [mostrar](#Eco-mostrar) | Muestra el dinero del usuario
+| [ver](#Eco-ver) | Muestra el dinero del usuario
 | [agregar](#Eco-agregar) | Agrega dinero aun usuario|
-| [quitar](#Eco-quitar) | Elimina el dinero de un usuario|
-| [eliminar](#Eco-eliminar) | Elimina la economia del servidor|
-| [comprar](#Eco-comprar) | Comprar En la tienda|
+| [remover](#Eco-remover) | Elimina el dinero de un usuario|
+| [reiniciar](#Eco-reiniciar) | Reiniciar la economia|
+| [comprar](#Eco-comprar) | Comprar en la tienda|
+| [trabajar](#Eco-trabajar) | Ganar una cantidad de dinero RANDOM|
 
-<a name="Eco-mostrar" />
-
-#### Economia: Mostrar
-
+#### Economia: Ver
 ```js
-eco.mostrar(clave, id)
+eco.ver(id, clave)
 ```
-* clave - ID del servidor
 * id - ID del usuario
+* clave - ID del servidor
 ```js
-const eco = new zeco.economia()
-eco.mostrar(servidor.id, miembro.id)
+const eco = new zeeweconomy.Economia()
+eco.ver(miembro.id, servidor.id)
 ```
+Retorno (Number)
 ```js
+10
 ```
-<a name="Eco-agregar" />
-
 #### Economia: Agregar
-
 ```js
-eco.agregar(clave, id, cantidad)
+eco.agregar(id, clave, cantidad)
 ```
-* clave - ID del servidor
 * id - ID del usuario
+* clave - ID del servidor
 * cantidad - Dinero que quieras agregarle
 
 ```js
-const eco = new zeco.economia()
-eco.agregar(servidor.id, miembro.id, 1500)
+const eco = new zeeweconomy.Economia()
+eco.agregar(miembro.id, servidor.id, 1500)
 ```
+Retorno (Number)
 ```js
+1500
 ```
-<a name="Eco-quitar" />
-
-#### Economia: Quitar
-
+#### Economia: Remover
 ```js
-eco.quitar(clave, id, cantidad)
+eco.remover(id, clave, cantidad)
 ```
-* clave -ID del servidor
 * id - ID del usuario
-* cantidad - Dinero que quieras quitarle
-```js
-const eco = new zeco.economia()
-eco.quitar(servidor.id, miembro.id, 1500)
-```
-
-```js
-```
-
-<a name="Eco-eliminar" />
-
-#### Economia: Eliminar
-
-```js
-eco.eliminar(clave)
-```
-
-* clave -ID del servidor
-
-```js
-const eco = new zeco.economia()
-eco.eliminar(servidor.id)
-```
-
-```js
-```
-
-<a name="Eco-comprar" />
-
-#### Economia: Comprar
-
-```js
-eco.comprar(clave, id, item)
-```
 * clave - ID del servidor
+* cantidad - Dinero que quieras agregarle
+
+```js
+const eco = new zeeweconomy.Economia()
+eco.remover(miembro.id, servidor.id, 1500)
+```
+Retorno (Number)
+```js
+0
+```
+#### Economia: Reiniciar
+```js
+eco.reiniciar(id, clave)
+```
 * id - ID del usuario
-* item - numero de item
+* clave - ID del servidor
+* 
 ```js
-const eco = new zeco.economia()
-eco.comprar(servidor.id, miembro.id, 1)
+const eco = new zeeweconomy.Economia()
+eco.reiniciar(miembro.id, servidor.id)
 ```
+Retorno (Boolean)
 ```js
+true
 ```
-<a name="tienda" />
+#### Economia: Comprar
+```js
+eco.comprar(user, clave, id)
+```
+* user - ID del usuario
+* clave - ID del servidor
+* id - ID del producto en Tienda
+```js
+const eco = new zeeweconomy.Economia()
+eco.comprar(miembro.id, servidor.id, idproducto)
+```
+Retorno:
+```js
+    item: {name, price, id, role}
+    money // Dinero antes de comprar
+    newmoney // Dinero despues de comprar
+```
+#### Economia: Trabajar
+```js
+eco.trabajar(id, clave, cantidad)
+```
+* id - ID del usuario
+* clave - ID del servidor
+* cantidad - Cantidad maxima aleatoria
 
+```js
+const eco = new zeeweconomy.Economia()
+eco.trabajar(miembro.id, servidor.id, 1500)
+```
+Retorno (Number):
+```js
+CANTIDAD RANDOM
+```
 ### Tienda
-
 ```js
-const zeco = require('zeew-eco')
-const td = new zeco.tienda()
+const zeeweconomy = require('zeew-eco')
+const td = new zeeweconomy.Tienda()
 ```
 
 | Metodos | Descripcion |
 | ------ | ------ |
-| [Mostrar](#TD-mostrar) | Muestra Items a la tienda|
-| [Agregar](#TD-agregar) | Agrega Items a la tienda|
-| [Eliminar](#TD-eliminar) | Elimina la tienda del servidor|
-| [quitar](#TD-quitar) | Elimina Items de la tienda|
+| [ver](#TD-ver) | Muestra Items a la tienda|
+| [agregar](#TD-agregar) | Agrega Items a la tienda|
+| [remover](#TD-remover) | Elimina Items de la tienda|
+| [reiniciar](#TD-reiniciar) | Elimina Items de la tienda|
 
-<a name="TD-mostrar" />
-
-#### Tienda: Mostrar
-
+#### Tienda: Ver
 ```js
-eco.mostrar(clave)
+eco.ver(clave)
 ```
 * clave - ID del servidor
 ```js
 const td = new zeco.tienda()
-eco.mostrar(servidor.id)
+eco.ver(servidor.id)
 ```
+Retorno:
 ```js
+[{id, name, description, price, isRole, role}] 
 ```
-<a name="TD-agregar" />
-
 #### Tienda: Agregar
-
 ```js
-eco.agregar(clave, nombre, desc, precio)
+eco.agregar(clave, nombre, desc, precio, isRole, role)
 ```
 * clave - ID del servidor
 * nombre - Nombre del Item
 * desc - La descripcion del item
 * precio - el precio del item
+* isRole - Boolean de si es o no un rol
+* role - ID del rol
+
 ```js
 const td = new zeco.tienda()
 td.agregar(servidor.id, "Canal Propio", "un canal privado para ti", 20000)
 ```
+Retorno:
 ```js
+{idname,description,price,isRole,role}
 ```
-<a name="TD-eliminar" />
-
-#### Tienda: eliminar
-
+#### Tienda: Remover
 ```js
-td.eliminar(clave, item)
+td.remover(clave, item)
 ```
 * clave -ID del servidor
-* item - Numero del Item de la tienda
+* item - ID del iten de la tienda
+
 ```js
 const td = new zeco.tienda()
-td.eliminar(servidor.id, 1)
+td.remover(servidor.id, 1)
 ```
-
+Retorno (Booleano)
 ```js
+true
 ```
-
-<a name="TD-quitar" />
-
-#### Tienda: quitar
-
+#### Tienda: Reiniciar
 ```js
-td.quitar(clave, item)
+td.reiniciar(clave)
 ```
 * clave -ID del servidor
-* item - Numero del Item de la tienda
 ```js
 const td = new zeco.tienda()
-td.quitar(servidor.id, 1)
+td.reiniciar(servidor.id)
 ```
-
+Retorno (Booleano)
 ```js
+true
 ```
-
-<a name="dinero" />
-
-### Dinero
-
-> esta funcion puede ser removida o cambiada en un futuro. Lo que diga la comunidad.
-```js
-const zeco = require('zeew-eco')
-const td = new zeco.dinero()
-```
-| Metodos | Descripcion |
-| ------ | ------ |
-| [Robar](#D-robar) | Roba dinero a otro usuario|
-
-
-<a name="D-robar" />
-
-#### Dinero: robar
-
-```js
-td.robar(clave, id1, d2, cantidad)
-```
-* clave -ID del servidor
-* id1 - ID del usuario (robar)
-* id2 - ID del usuario (robado)
-* cantidad - Cantidad de dinero que le robara al usuario
-
-```js
-td.robar(servidor.id, yo.id, usuario.id, 1500)
-```
-
-<a name="Inventario" />
-
 ### Inventario
 ```js
-const zeco = require('zeew-eco')
-const inv = new zeco.inventario()
+const zeeweconomy = require('zeew-eco')
+const inventario = new zeeweconomy.Inventario()
 ```
+
 | Metodos | Descripcion |
 | ------ | ------ |
-| [compras](#V-compras) | Guardar Compras en el inventario|
-| [quitarcompras](#V-quitarcompras) | Quitar Alguna compra en el inventario |
-| [vercompras](#V-vercompras) | Ver los objetos comprados desde la tienda
+| [Ver](#v-ver) | Ver los objetos comprados desde la tienda
 
-<a name="V-compras" />
-
-#### Inventario: compras
-
+#### Inventario: Ver
 ```js
-inv.compras(clave, id, item, boleano)
+inv.ver(clave, user)
 ```
 * clave - ID del servidor
-* ID - ID del usuario
-* Item - ID del item de la tienda que sera guardado en el inventario
-* boleano
-    * true - No guardar el mismo Item
-    * false - Guardar el mismo Item
-> proximas Actualizaciones se quiere hacer que los usuarios puedan vender los items de sus inventarios y tener una economia mas amplia.
+* user - ID del usuario
+
 ```js
 const inv = new zeco.inventario()
-inv.quitarcompras(servidor.id, usuario.id, 2 , false)
+inv.ver(servidor.id, usuario.id)
 ```
+Retorno (Booleano)
 ```js
+[{id, name}]
 ```
 
-<a name="V-quitarcompras" />
-
-#### Inventario: quitarcompras
-
-```js
-inv.quitarcompras(clave, id, item)
-```
-* clave - ID del servidor
-* ID - ID del usuario
-* Item - ID del item de la tienda que sera eliminado en el inventario
-```js
-const inv = new zeco.inventario()
-inv.quitarcompras(servidor.id, usuario.id, 2)
-```
-```js
-```
-
-<a name="V-vercompras" />
-
-#### Inventario: vercompras
+#### ¡Ejemplo de Bot en Discord.js!
+* Ejemplo de Agregar dinero a un usuario!
+* Evidemente le puedes añadir mas condicionales...
 
 ```js
-inv.vercompras(clave, id)
-```
-* clave - ID del servidor
-* ID - ID del usuario
-```js
-let inv = new ze.inventario()
-inv.vercompras(servidor.id,usuario.id)
-```
-```js
-```
+const zeeweconomy = require('zeew-eco')
+module.exports.run...
 
----
-## Zeew
+let dinero = args[0]
+if(!dinero) return;
 
-<a name="staff" />
-
-#### Staff
- * @KamerrOficial
+const eco = new zeeweconomy.Economia()
+eco.agregar(miembro.id, servidor.id, dinero)
+message.channel.send("Se ha agregado correctamente "+dinero+" al usuario: "+message.author.username
+```
+#### ¡Staff de Zeew!
+ * @KamerrEzz
   ```
     * ROL: Owner
     * ID Discord: 403695999941345280
-    * Redes Sociales: @KamerrEzz
-    * Portafolio: behance.net/KamerrEzz
+    * Redes Sociales: @KamerrOficial
+    * Portafolio: behance.net/kamerroficial
   ```
- * @ValerynR  
+ * @LHCLYT  
 ```
-  * ROL: Co-Owner
-  * ID Discord: 393603334847856650
+  * ROL: Editor de README & Amigo
+  * ID Discord: 478572042384572424
+  * Proyecto: https://cactusfire.xyz
+  * Discord: https://discord.gg/73AMGUZ
 ```
-<a name="proyectos" />
+#### Proyectos de Zeew
 
-#### Proyectos
-
-| proyecto | descripcion |
+| Proyecto | Descripción |
 | --- | --- |
-| [Zeew](https://www.npmjs.com/package/zeew) | Descubre nuestra API Reset de Imágenes y manipulación
+| [ZEEW](https://www.npmjs.com/package/zeew) | Descubre nuestra API Reset de Imágenes y manipulación
+
+```js
+```
 #### Donaciones
-* [Kamerr Ko-fi](https://ko-fi.com/kamerroficial)
-Las Donaciones las uso crear más proyectos y mejorar la calidad,
-cierta cantidad está totalmente para **zeew** para su único uso.
+* [Kamerr Ko-fi](https://ko-fi.com/kamerroficial) ❤️
+* [PayPal](https://www.paypal.com/donate/?hosted_button_id=MAB5M68DJG5PQ&source=url) ❤️
