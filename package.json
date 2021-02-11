@@ -1,6 +1,6 @@
 {
   "name": "zeew-eco",
-  "version": "0.1.1",
+  "version": "2.1.0",
   "description": "Economia Basica Para Tu Bot Discord.js [Zeew]",
   "main": "index.js",
   "scripts": {
@@ -12,14 +12,17 @@
   },
   "keywords": [
     "discord.js",
+    "discord economia",
+    "economia discord",
+    "economy discord",
     "zeew"
   ],
   "author": "kamerr Ezz",
   "license": "none",
   "bugs": {
-    "url": "https://github.com/KamerrOficial/Zeew-eco/issues"
+    "url": "https://github.com/KamerrEzz/ZeewApi/issues"
   },
-  "homepage": "https://github.com/KamerrOficial/Zeew-eco/#readme",
+  "homepage": "https://github.com/KamerrEzz/ZeewApi",
   "dependencies": {
     "mongoose": "^5.11.13",
     "uuid": "^8.3.2"
