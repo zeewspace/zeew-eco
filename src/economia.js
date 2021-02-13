@@ -70,15 +70,14 @@ class Economy {
    */
   async remover(user, guild, money) {
     let db = await this.model.findOne({ user: user, guild: guild });
-
+    console.log("db",db.money);
     if (db) {
       try {
-        let remove = parseInt(db.money) - parseInt(money);
+        let remove = db.money - money;
         await this.model.updateOne(
           { user: user, guild: guild },
-          { money: remove }
+          { money: String(remove) }
         );
-
         return remove;
       } catch (error) {
         this.error(error);
@@ -116,6 +115,10 @@ class Economy {
         user: user,
         guild: guild,
       });
+
+      if (!store) return { tienda: false };
+      if (!db) return { user: false };
+
       let item = store.store
         .filter((a) => a.id === id)
         .map((a) => ({
@@ -124,13 +127,13 @@ class Economy {
           id: a.id,
           role: a.role,
         }))[0];
-      if (!store) return { tienda: false };
-      if (!db) return { user: false };
+
       if (!item) return { item: false };
+      if (db.money < item.price) return { price: false };
 
       let removemoney = db.money - item.price;
 
-      await this.remover(user, guild,removemoney)
+      await this.remover(user, guild, item.price);
 
       let iv;
       if (item.role) {
@@ -147,17 +150,19 @@ class Economy {
       }
 
       if (inventory) {
-        await this.inventory.updateOne({ user: user, guild: guild},
+        await this.inventory.updateOne(
+          { user: user, guild: guild },
           {
             $push: {
-              inventory: [iv]
-            }
-          })
-          return {
-            item,
-            money: parseInt(db.money),
-            newmoney: removemoney
+              inventory: [iv],
+            },
           }
+        );
+        return {
+          item,
+          money: parseInt(db.money),
+          newmoney: removemoney,
+        };
       } else {
         let inventario = new this.inventory({
           user,
@@ -169,8 +174,8 @@ class Economy {
         return {
           item,
           money: parseInt(db.money),
-          newmoney: removemoney
-        }
+          newmoney: removemoney,
+        };
       }
     } catch (error) {
       this.error(error);

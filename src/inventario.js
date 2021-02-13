@@ -18,6 +18,31 @@ class Inventario {
       return false;
     }
   }
+
+  async item(user, guild, id) {
+    let db = await this.inventory.findOne({user: user, guild: guild})
+    let inv = await db.inventory.map(item => item.id === id);
+
+    if(db) {
+        if(inv) {
+          return inv;
+        } else {
+          return {item: false};
+        }
+    } else {
+      return {inventory: false};
+    }
+  }
+
+  async remover(user, guild){
+
+  }
+
+  async reiniciar(user, guild){
+
+  }
+
+
 }
 
 module.exports = Inventario;

@@ -164,16 +164,16 @@ class Banco {
   }
 
   _remove(db, eco, money) {
-    let removeEco = ParseInt(money) - ParseInt(eco.money);
+    let removeEco = parseInt(money) - parseInt(eco.money);
     let addBank = parseInt(db.money) + parseInt(money);
 
     return {
-      removeEco,
+      removeEco, 
       addBank,
     };
   }
   _add(db, eco, money) {
-    let addEco = ParseInt(money) + ParseInt(eco.money);
+    let addEco = parseInt(money) + parseInt(eco.money);
     let removeBank = parseInt(db.money) - parseInt(money);
 
     return {
