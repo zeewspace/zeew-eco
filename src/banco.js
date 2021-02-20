@@ -112,10 +112,10 @@ class Banco {
             Banco: addBank,
           };
         } else {
-          let { removeEco } = this._remove(db, eco, money);
+          let newMoney = parseInt(eco.money) - money;
           await this.eco.updateOne(
             { user: user, guild: guild },
-            { money: money }
+            { money: newMoney }
           );
           await this.db({
             user,
