@@ -124,7 +124,7 @@ class Banco {
           });
 
           return {
-            Economia: removeEco,
+            Economia: newMoney,
             Banco: money,
           };
         }

@@ -1,6 +1,6 @@
 {
   "name": "zeew-eco",
-  "version": "2.2.1",
+  "version": "2.2.2",
   "description": "Economia Basica Para Tu Bot Discord.js [Zeew]",
   "main": "index.js",
   "scripts": {
