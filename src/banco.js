@@ -117,12 +117,12 @@ class Banco {
             { user: user, guild: guild },
             { money: newMoney }
           );
-          await this.db({
+          let bancoSave = new this.db({
             user,
             guild,
             money,
           });
-
+          await bancoSave.save();
           return {
             Economia: newMoney,
             Banco: money,
