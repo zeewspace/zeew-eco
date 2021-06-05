@@ -1,6 +1,6 @@
 class tienda {
-  constructor() {
-    this.db = require("../mysql");
+  constructor(path) {
+    this.db = require(path);
     this.error = (e) => {
       console.log("[══════ Zeew Economia: " + e + " ═══════]");
     };

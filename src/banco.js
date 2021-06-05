@@ -1,7 +1,7 @@
 class Banco {
   constructor(path) {
     // this.db = require(path);
-    this.db = require("../mysql");
+    this.db = require(path);
     this.error = (e) => {
       console.log("[══════ Zeew Economia: " + e + " ═══════]");
     };
