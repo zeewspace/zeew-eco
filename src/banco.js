@@ -143,7 +143,6 @@ class Banco {
           return { removeMoney, addBank };
         }
       } catch (error) {
-        console.log(error);
         this.error(error.message);
       }
     } catch (error) {
@@ -180,7 +179,6 @@ class Banco {
         );
         return { addMoney, removeBank };
       } catch (error) {
-        console.log(error);
         this.error(error.message);
       }
     } catch (error) {

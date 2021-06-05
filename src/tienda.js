@@ -49,7 +49,6 @@ class tienda {
       await this.db.insert("zeew_store", insert);
       return insert;
     } catch (error) {
-      console.log(error);
       this.error(error.message);
     }
   }
@@ -112,9 +111,7 @@ class tienda {
         `guild = ${guild} AND user = ${user}`
       );
       if (!getuser) return { user: false };
-      console.log(getuser[0].money < item[0].price);
-      console.log(getuser[0].money);
-      console.log(item[0].price);
+
       if (item[0].price > getuser[0].money) return { money: false };
 
       await this.db.update(
