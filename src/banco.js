@@ -116,7 +116,7 @@ class Banco {
         `user = ${user} AND guild = ${guild}`
       );
       let geteconomia = await this.db.getSelectWhere(
-        "economy",
+        "zeew_economy",
         "money",
         `user = ${user} AND guild = ${guild}`
       );
@@ -126,7 +126,7 @@ class Banco {
         let removeMoney = parseInt(geteconomia[0].money) - parseInt(money);
         let addBank = parseInt(getbanco[0].money) + parseInt(money);
         await this.db.update(
-          "economy",
+          "zeew_economy",
           `money = ${removeMoney}`,
           `user = ${user} AND guild = ${guild}`
         );
@@ -159,7 +159,7 @@ class Banco {
         `user = ${user} AND guild = ${guild}`
       );
       let geteconomia = await this.db.getSelectWhere(
-        "economy",
+        "zeew_economy",
         "money",
         `user = ${user} AND guild = ${guild}`
       );
@@ -169,7 +169,7 @@ class Banco {
         let addMoney = parseInt(geteconomia[0].money) + parseInt(money);
         let removeBank = parseInt(getbanco[0].money) - parseInt(money);
         await this.db.update(
-          "economy",
+          "zeew_economy",
           `money = ${addMoney}`,
           `user = ${user} AND guild = ${guild}`
         );

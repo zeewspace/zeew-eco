@@ -1,4 +1,4 @@
-class Economy {
+class zeew_economy {
   constructor(path) {
     this.db = require("../mysql");
     this.error = (e) => {
@@ -15,7 +15,7 @@ class Economy {
   async ver(user, guild) {
     try {
       let db = await this.db.getSelectWhere(
-        "economy",
+        "zeew_economy",
         "money",
         `user = ${user} AND guild = ${guild}`
       );
@@ -35,19 +35,19 @@ class Economy {
    */
   async agregar(user, guild, money) {
     let getuser = await this.db.getAllWhere(
-      "economy",
+      "zeew_economy",
       `user = ${user} AND guild = ${guild}`
     );
 
     if (!getuser) {
       let insert = { user: user, guild: guild, money };
-      await this.db.insert("economy", insert);
+      await this.db.insert("zeew_economy", insert);
       return parseInt(money);
     } else {
       try {
         let addmoney = parseInt(getuser[0].money) + parseInt(money);
         await this.db.update(
-          "economy",
+          "zeew_economy",
           `money = ${addmoney}`,
           `user = ${user} AND guild = ${guild}`
         );
@@ -66,7 +66,7 @@ class Economy {
    */
   async remover(user, guild, money) {
     let getuser = await this.db.getAllWhere(
-      "economy",
+      "zeew_economy",
       `user = ${user} AND guild = ${guild}`
     );
 
@@ -78,7 +78,7 @@ class Economy {
 
         let addmoney = parseInt(getuser[0].money) - parseInt(money);
         await this.db.update(
-          "economy",
+          "zeew_economy",
           `money = ${addmoney}`,
           `user = ${user} AND guild = ${guild}`
         );
@@ -96,7 +96,7 @@ class Economy {
    */
   async reiniciar(user, guild) {
     try {
-      await this.db.deletedb("economy", `user = ${user} AND guild = ${guild}`);
+      await this.db.deletedb("zeew_economy", `user = ${user} AND guild = ${guild}`);
       return true;
     } catch (error) {
       this.error(error);
@@ -111,20 +111,20 @@ class Economy {
    */
   async trabajar(user, guild, count) {
     let getuser = await this.db.getAllWhere(
-      "economy",
+      "zeew_economy",
       `user = ${user} AND guild = ${guild}`
     );
     let randommonet = Math.floor(Math.random() * parseInt(count));
 
     if (!getuser) {
       let insert = { user: user, guild: guild, money: randommonet };
-      await this.db.insert("economy", insert);
+      await this.db.insert("zeew_economy", insert);
       return parseInt(randommonet);
     } else {
       try {
         let addmoney = parseInt(getuser[0].money) + parseInt(randommonet);
         await this.db.update(
-          "economy",
+          "zeew_economy",
           `money = ${addmoney}`,
           `user = ${user} AND guild = ${guild}`
         );
@@ -137,4 +137,4 @@ class Economy {
 
 }
 
-module.exports = Economy;
+module.exports = zeew_economy;
