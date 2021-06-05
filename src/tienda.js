@@ -87,5 +87,36 @@ class tienda {
       this.error(error);
     }
   }
+
+  /**
+   *
+   * @param {*} user ID del usuario
+   * @param {*} guild ID del servidor
+   * @param {*} id ID del item en la tiendam
+   */
+  async comprar(user, guild, id) {
+    try {
+      let find = await this.db.getAllWhere("zeew_store", `guild = ${guild}`);
+      if (!find) return {store: false};
+      let item = await this.db.getAllWhere("zeew_store", `guild = '${guild}' AND id = '${id}'`);
+      if(!item) return {item: false};
+      let getuser = await this.db.getSelectWhere("economy", "money", `guild = ${guild} AND user = ${user}`);
+      if(!getuser) return {user: false};
+      console.log(getuser[0].money < item[0].price);
+      console.log(getuser[0].money);
+      console.log(item[0].price);
+      if(item[0].price > getuser[0].money) return {money: false};
+      
+      await this.db.update("economy", `money = ${getuser[0].money - item[0].price}`, `user = ${user} AND guild = ${guild}`);
+      let insert = {id, user, guild, name: item[0].name, description: item[0].description};
+      await this.db.insert("zeew_inventory", insert);
+
+      return insert
+
+
+    } catch (error) {
+      this.error(error);
+    }
+  }
 }
 module.exports = tienda;
