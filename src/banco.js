@@ -1,9 +1,9 @@
 class Banco {
-  constructor() {
-    this.db = require("./models/banco");
-    this.eco = require("./models/eco");
+  constructor(path) {
+    // this.db = require(path);
+    this.db = require("../mysql");
     this.error = (e) => {
-      console.log("[══════ Zeew Economia: " + e.message + " ═══════]");
+      console.log("[══════ Zeew Economia: " + e + " ═══════]");
     };
   }
 
@@ -12,11 +12,15 @@ class Banco {
    * @param {Number} user ID del usuario
    */
   async ver(user, guild) {
-    let db = await this.db.findOne({ user: user, guild: guild});
-    if (db) {
-      return db.money;
-    } else {
-      return 0;
+    try {
+      let db = await this.db.getSelectWhere(
+        "zeew_banco",
+        "money",
+        `user = ${user} AND guild = ${guild}`
+      );
+      return db ? db[0].money : 0;
+    } catch (error) {
+      this.error(error.message);
     }
   }
   /**
@@ -25,30 +29,36 @@ class Banco {
    * @param {Number} money Cantidad de dinero a agregar
    */
   async agregar(user, guild, money) {
-    let db = await this.db.findOne({ user: user });
+    try {
+      let getbanco = await this.db.getSelectWhere(
+        "zeew_banco",
+        "money",
+        `user = ${user} AND guild = ${guild}`
+      );
 
-    if (db) {
-      try {
-        let add = parseInt(db.money) + parseInt(money);
-        await this.db.updateOne({ user: user, guild: guild }, { money: add });
-
-        return add;
-      } catch (error) {
-        this.error(error);
+      if (!getbanco) {
+        try {
+          let insert = { user: user, guild: guild, money };
+          await this.db.insert("zeew_banco", insert);
+          return parseInt(money);
+        } catch (error) {
+          this.error(error.message);
+        }
+      } else {
+        try {
+          let addmoney = parseInt(getbanco[0].money) + parseInt(money);
+          await this.db.update(
+            "zeew_banco",
+            `money = ${addmoney}`,
+            `user = ${user} AND guild = ${guild}`
+          );
+          return parseInt(addmoney);
+        } catch (error) {
+          this.error(error.message);
+        }
       }
-    } else {
-      let add = new this.db({
-        user,
-        guild,
-        money,
-      });
-
-      try {
-        await add.save();
-        return money;
-      } catch (e) {
-        this.error(e);
-      }
+    } catch (error) {
+      this.error(error.message);
     }
   }
 
@@ -58,17 +68,22 @@ class Banco {
    * @param {Number} money Cantidad de dinero a remover
    */
   async remover(user, guild, money) {
-    let db = await this.db.findOne({ user: user, guild: guild });
+    let getbanco = await this.db.getSelectWhere(
+      "zeew_banco",
+      "money",
+      `user = ${user} AND guild = ${guild}`
+    );
 
-    if (db) {
+    if (getbanco) {
       try {
-        let remove = parseInt(db.money) - parseInt(money);
-        await this.db.updateOne(
-          { user: user, guild: guild },
-          { money: remove }
+        if (parseInt(getbanco[0].money) <= 0) return 0;
+        let removeMoney = parseInt(getbanco[0].money) - parseInt(money);
+        await this.db.update(
+          "zeew_banco",
+          `money = ${removeMoney}`,
+          `user = ${user} AND guild = ${guild}`
         );
-
-        return remove;
+        return parseInt(removeMoney);
       } catch (error) {
         this.error(error);
       }
@@ -83,103 +98,94 @@ class Banco {
    */
   async reiniciar(user, guild) {
     try {
-      await this.db.deleteOne({ user: user, guild: guild });
+      await this.db.deletedb(
+        "zeew_banco",
+        `user = ${user} AND guild = ${guild}`
+      );
       return true;
     } catch (error) {
-      this.error(error);
+      this.error(error.message);
     }
   }
 
   async depositar(user, guild, money) {
     try {
-      let db = await this.db.findOne({ user: user, guild: guild });
-      let eco = await this.eco.findOne({ user: user, guild: guild });
-
-      if (eco) {
-        if (db) {
-          let { removeEco, addBank } = this._remove(db, eco, money);
-          await this.db.updateOne(
-            { user: user, guild: guild },
-            { money: addBank }
+      let getbanco = await this.db.getSelectWhere(
+        "zeew_banco",
+        "money",
+        `user = ${user} AND guild = ${guild}`
+      );
+      let geteconomia = await this.db.getSelectWhere(
+        "economy",
+        "money",
+        `user = ${user} AND guild = ${guild}`
+      );
+      if (!geteconomia) return { economia: false };
+      try {
+        if (parseInt(geteconomia[0].money) < money) return 0;
+        let removeMoney = parseInt(geteconomia[0].money) - parseInt(money);
+        let addBank = parseInt(getbanco[0].money) + parseInt(money);
+        await this.db.update(
+          "economy",
+          `money = ${removeMoney}`,
+          `user = ${user} AND guild = ${guild}`
+        );
+        if (getbanco) {
+          await this.db.update(
+            "zeew_banco",
+            `money = ${addBank}`,
+            `user = ${user} AND guild = ${guild}`
           );
-          await this.eco.updateOne(
-            { user: user, guild: guild },
-            { money: removeEco }
-          );
-
-          return {
-            Economia: removeEco,
-            Banco: addBank,
-          };
+          return { removeMoney, addBank };
         } else {
-          let newMoney = parseInt(eco.money) - money;
-          await this.eco.updateOne(
-            { user: user, guild: guild },
-            { money: newMoney }
-          );
-          let bancoSave = new this.db({
-            user,
-            guild,
-            money,
-          });
-          await bancoSave.save();
-          return {
-            Economia: newMoney,
-            Banco: money,
-          };
+          let insert = { user: user, guild: guild, money: addBank };
+          await this.db.insert("zeew_banco", insert);
+          return { removeMoney, addBank };
         }
-      } else {
-        return false;
+      } catch (error) {
+        console.log(error);
+        this.error(error.message);
       }
     } catch (error) {
-      this.error(error);
+      this.error(error.message);
     }
   }
 
   async retirar(user, guild, money) {
     try {
-      let db = await this.db.findOne({ user: user, guild: guild });
-      let eco = await this.eco.findOne({ user: user, guild: guild });
-
-      if (db) {
-        if (eco) {
-          let { addEco, removeBank } = this._add(db, eco, money);
-
-          await this.eco.updateOne({ user: user, guild: guild}, { money: addEco})
-          await this.db.updateOne({user: user, guild: guild}, { money: removeBank})
-
-          return {
-            addEco,
-            removeBank
-          }
-        } else {
-            return false;
-        }
-      } else {
-        return false;
+      let getbanco = await this.db.getSelectWhere(
+        "zeew_banco",
+        "money",
+        `user = ${user} AND guild = ${guild}`
+      );
+      let geteconomia = await this.db.getSelectWhere(
+        "economy",
+        "money",
+        `user = ${user} AND guild = ${guild}`
+      );
+      if (!getbanco) return { banco: false };
+      try {
+        if (parseInt(geteconomia[0].money) < money) return 0;
+        let addMoney = parseInt(geteconomia[0].money) + parseInt(money);
+        let removeBank = parseInt(getbanco[0].money) - parseInt(money);
+        await this.db.update(
+          "economy",
+          `money = ${addMoney}`,
+          `user = ${user} AND guild = ${guild}`
+        );
+        await this.db.update(
+          "zeew_banco",
+          `money = ${removeBank}`,
+          `user = ${user} AND guild = ${guild}`
+        );
+        return { addMoney, removeBank };
+      } catch (error) {
+        console.log(error);
+        this.error(error.message);
       }
     } catch (error) {
-      this.error(error);
+      this.error(error.message);
     }
-  }
-
-  _remove(db, eco, money) {
-    let removeEco = parseInt(money) - parseInt(eco.money);
-    let addBank = parseInt(db.money) + parseInt(money);
-
-    return {
-      removeEco, 
-      addBank,
-    };
-  }
-  _add(db, eco, money) {
-    let addEco = parseInt(money) + parseInt(eco.money);
-    let removeBank = parseInt(db.money) - parseInt(money);
-
-    return {
-      addEco,
-      removeBank,
-    };
   }
 }
 

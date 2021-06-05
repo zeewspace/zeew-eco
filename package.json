@@ -1,5 +1,5 @@
 {
-  "name": "zeew-eco",
+  "name": "zeew-eco-mysql",
   "version": "2.2.3",
   "description": "Economia Basica Para Tu Bot Discord.js [Zeew]",
   "main": "index.js",
@@ -24,7 +24,7 @@
   },
   "homepage": "https://github.com/KamerrEzz/ZeewApi",
   "dependencies": {
-    "mongoose": "^5.11.13",
+    "mysql2": "^2.2.5",
     "uuid": "^8.3.2"
   },
   "devDependencies": {}
