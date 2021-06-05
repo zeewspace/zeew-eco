@@ -62,10 +62,13 @@ class tienda {
     try {
       let find = this.db.getAllWhere("zeew_store", `guild = ${guild}`);
       if (!find) return false;
-      let item = this.db.getAllWhere("zeew_store", `guild = ${guild} AND id = ${id}`);
-      if(!item) return false;
+      let item = this.db.getAllWhere(
+        "zeew_store",
+        `guild = ${guild} AND id = ${id}`
+      );
+      if (!item) return false;
 
-      await this.db.deletedb("zeew_store", `guild = ${guild} AND id = ${id}`)
+      await this.db.deletedb("zeew_store", `guild = ${guild} AND id = ${id}`);
       return true;
     } catch (error) {
       this.error(error.message);
@@ -81,7 +84,7 @@ class tienda {
     try {
       let find = this.db.getAllWhere("zeew_store", `guild = ${guild}`);
       if (!find) return false;
-      await this.db.deletedb("zeew_store", `guild = ${guild}`)
+      await this.db.deletedb("zeew_store", `guild = ${guild}`);
       return true;
     } catch (error) {
       this.error(error);
@@ -97,23 +100,40 @@ class tienda {
   async comprar(user, guild, id) {
     try {
       let find = await this.db.getAllWhere("zeew_store", `guild = ${guild}`);
-      if (!find) return {store: false};
-      let item = await this.db.getAllWhere("zeew_store", `guild = '${guild}' AND id = '${id}'`);
-      if(!item) return {item: false};
-      let getuser = await this.db.getSelectWhere("zeew_economy", "money", `guild = ${guild} AND user = ${user}`);
-      if(!getuser) return {user: false};
+      if (!find) return { store: false };
+      let item = await this.db.getAllWhere(
+        "zeew_store",
+        `guild = '${guild}' AND id = '${id}'`
+      );
+      if (!item) return { item: false };
+      let getuser = await this.db.getSelectWhere(
+        "zeew_economy",
+        "money",
+        `guild = ${guild} AND user = ${user}`
+      );
+      if (!getuser) return { user: false };
       console.log(getuser[0].money < item[0].price);
       console.log(getuser[0].money);
       console.log(item[0].price);
-      if(item[0].price > getuser[0].money) return {money: false};
-      
-      await this.db.update("zeew_economy", `money = ${getuser[0].money - item[0].price}`, `user = ${user} AND guild = ${guild}`);
-      let insert = {id: this.uuid(), user, guild, name: item[0].name, description: item[0].description};
+      if (item[0].price > getuser[0].money) return { money: false };
+
+      await this.db.update(
+        "zeew_economy",
+        `money = ${getuser[0].money - item[0].price}`,
+        `user = ${user} AND guild = ${guild}`
+      );
+      let insert = {
+        id: this.uuid(),
+        user,
+        guild,
+        name: item[0].name,
+        description: item[0].description,
+        isRole: item[0].isRole,
+        role: item[0].description,
+      };
       await this.db.insert("zeew_inventory", insert);
 
-      return insert
-
-
+      return insert;
     } catch (error) {
       this.error(error);
     }

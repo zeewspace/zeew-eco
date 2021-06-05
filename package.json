@@ -1,7 +1,7 @@
 {
   "name": "zeew-eco-mysql",
   "version": "2.2.3",
-  "description": "Economia Basica Para Tu Bot Discord.js [Zeew]",
+  "description": "Economia Basica Para Tu Bot Discord.js [Zeew] en mysql",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
@@ -18,7 +18,7 @@
     "zeew"
   ],
   "author": "kamerr Ezz",
-  "license": "none",
+  "license": "MIT",
   "bugs": {
     "url": "https://github.com/KamerrEzz/ZeewApi/issues"
   },
