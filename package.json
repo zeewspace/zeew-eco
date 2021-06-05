@@ -1,6 +1,6 @@
 {
   "name": "zeew-eco-mysql",
-  "version": "2.2.3",
+  "version": "1.0.0",
   "description": "Economia Basica Para Tu Bot Discord.js [Zeew] en mysql",
   "main": "index.js",
   "scripts": {
