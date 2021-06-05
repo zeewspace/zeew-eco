@@ -1,8 +1,8 @@
 class tienda {
   constructor() {
-    this.model = require("./models/store");
-    this.error = () => {
-      console.log("[══════ Zeew Economia: " + e.message + " ═══════]");
+    this.db = require("../mysql");
+    this.error = (e) => {
+      console.log("[══════ Zeew Economia: " + e + " ═══════]");
     };
     this.uuid = () => {
       const { v4: uuidv4 } = require("uuid");
@@ -18,13 +18,12 @@ class tienda {
    */
   async ver(guild) {
     try {
-      let find = await this.model.findOne({ guild: guild });
-      if (find) {
-        return find.store;
-      } else {
-        return false;
-      }
-    } catch (error) {}
+      let find = this.db.getAllWhere("zeew_store", `guild = ${guild}`);
+      if (!find) return false;
+      return find;
+    } catch (error) {
+      this.error(error.message);
+    }
   }
   /**
    *
@@ -38,54 +37,20 @@ class tienda {
    */
   async agregar(guild, name, description, price, isRole, role) {
     try {
-      let findItem = await this.model.findOne({ guild: guild });
-
-      if (findItem) {
-        await this.model.updateOne(
-          { guild: guild },
-          {
-            $push: {
-              store: [
-                {
-                  id: this.uuid(),
-                  name,
-                  description,
-                  price,
-                  isRole,
-                  role: role ? role : null,
-                },
-              ],
-            },
-          }
-        );
-        return {
-          id: this.uuid(),
-          name,
-          description,
-          price,
-          isRole,
-          role: role ? role : null,
-        };
-      } else {
-        let add = new this.model({
-          guild,
-          store: [
-            {
-              id: this.uuid(),
-              name,
-              description,
-              price,
-              isRole,
-              role: role ? role : null,
-            },
-          ],
-        });
-
-        await add.save();
-        return add.store[0];
-      }
+      let insert = {
+        id: this.uuid(),
+        guild,
+        name,
+        description,
+        price: parseInt(price),
+        isRole,
+        role,
+      };
+      await this.db.insert("zeew_store", insert);
+      return insert;
     } catch (error) {
-      this.error(error);
+      console.log(error);
+      this.error(error.message);
     }
   }
   /**
@@ -95,15 +60,16 @@ class tienda {
    */
   async remover(guild, id) {
     try {
-      let findItem = await this.model.findOne({ guild: guild });
-      if (findItem) {
-        let store = findItem.store.filter((a) => a.id !== id);
-        await this.model.updateOne({ guild: guild }, { store: store });
-        return true;
-      } else {
-        return false;
-      }
-    } catch (error) {}
+      let find = this.db.getAllWhere("zeew_store", `guild = ${guild}`);
+      if (!find) return false;
+      let item = this.db.getAllWhere("zeew_store", `guild = ${guild} AND id = ${id}`);
+      if(!item) return false;
+
+      await this.db.deletedb("zeew_store", `guild = ${guild} AND id = ${id}`)
+      return true;
+    } catch (error) {
+      this.error(error.message);
+    }
   }
 
   /**
@@ -113,7 +79,9 @@ class tienda {
    */
   async reiniciar(guild) {
     try {
-      await this.model.deleteOne({ guild: guild });
+      let find = this.db.getAllWhere("zeew_store", `guild = ${guild}`);
+      if (!find) return false;
+      await this.db.deletedb("zeew_store", `guild = ${guild}`)
       return true;
     } catch (error) {
       this.error(error);
