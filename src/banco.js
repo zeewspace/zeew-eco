@@ -90,50 +90,57 @@ class Banco {
     }
   }
 
+  /**
+   * @param {Number} user ID del usuario
+   * @param {Number} guild  ID del servidor
+   * @param {Number} money Cantidad de dinero a depositar
+   * @return {Object} Deposito Correcto - {Economia, Banco}
+   * @return {Object} Sin Economia - {SinEconomia: false}
+   * @return {Object} Sin suficiente economia - {Economia: false}
+  */
   async depositar(user, guild, money) {
+
     try {
-      let db = await this.db.findOne({ user: user, guild: guild });
+      let bank = await this.db.findOne({ user: user, guild: guild });
       let eco = await this.eco.findOne({ user: user, guild: guild });
 
-      if (eco) {
-        if (db) {
-          let { removeEco, addBank } = this._remove(db, eco, money);
-          await this.db.updateOne(
-            { user: user, guild: guild },
-            { money: addBank }
-          );
-          await this.eco.updateOne(
-            { user: user, guild: guild },
-            { money: removeEco }
-          );
+      if(!eco) return {SinEconomia: false};
+      if(eco.money < money) return {Economia: false};
 
-          return {
-            Economia: removeEco,
-            Banco: addBank,
-          };
-        } else {
-          let newMoney = parseInt(eco.money) - money;
-          await this.eco.updateOne(
-            { user: user, guild: guild },
-            { money: newMoney }
-          );
-          let bancoSave = new this.db({
-            user,
-            guild,
-            money,
-          });
-          await bancoSave.save();
-          return {
-            Economia: newMoney,
-            Banco: money,
-          };
+      if(bank) {
+        let addBank = parseInt(bank.money) + parseInt(money);
+        let removeEco = parseInt(eco.money) - parseInt(money);
+
+        await this.db.updateOne({ user: user, guild: guild }, { money: addBank });
+        await this.eco.updateOne({ user: user, guild: guild }, { money: removeEco });
+
+        return {
+          Economia: removeEco,
+          Banco: addBank
         }
       } else {
-        return false;
+        let removeEco = parseInt(eco.money) - parseInt(money);
+
+        await this.eco.updateOne({ user: user, guild: guild }, { money: removeEco });
+
+        let newBank = new this.db({
+          user,
+          guild,
+          money,
+        });
+        await newBank.save();
+
+        return {
+          Economia: removeEco,
+          Banco: money
+        }
       }
+      
+      
     } catch (error) {
       this.error(error);
     }
+    
   }
 
   async retirar(user, guild, money) {
