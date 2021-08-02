@@ -198,7 +198,7 @@ class Economy {
           { money: work }
         );
 
-        return work;
+        return randommonet;
       } catch (error) {
         this.error(error);
       }
