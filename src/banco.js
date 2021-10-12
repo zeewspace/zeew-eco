@@ -25,7 +25,7 @@ class Banco {
    * @param {Number} money Cantidad de dinero a agregar
    */
   async agregar(user, guild, money) {
-    let db = await this.db.findOne({ user: user });
+    let db = await this.db.findOne({ user: user, guild: guild });
 
     if (db) {
       try {
