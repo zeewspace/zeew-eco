@@ -5,6 +5,7 @@
 - [Zeew Eco](#zeew-eco)
   - [Información](#información)
     - [Proyectos](#proyectos)
+  - [Actualizaciones](#actualizaciones)
   - [Instalación y uso del modulo](#instalación-y-uso-del-modulo)
   - [Modulos](#modulos)
     - [Economia](#economia)
@@ -50,6 +51,15 @@ No olvides que si tienes un error o propuesta para mejorar este NPM, solo tienes
 | Proyecto                                   | Descripción                                           |
 | ------------------------------------------ | ----------------------------------------------------- |
 | [ZEEW](https://www.npmjs.com/package/zeew) | Descubre nuestra API Reset de Imágenes y manipulación |
+
+## Actualizaciones
+
+Tratamos de hacer el modulo muy completo, a si que vamos metiendo nuevas cosas,
+actualizaciones, agregando mas bases de datos, etc.
+
+Para saber mas puedes ir al repositorio en github https://github.com/zeewdev/zeew-eco
+donde colocamos primero las correcciones, algunas mejoras antes de publicarlo en npmjs
+
 
 ## Instalación y uso del modulo
 
