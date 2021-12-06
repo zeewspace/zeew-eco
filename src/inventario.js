@@ -87,11 +87,6 @@ class Inventario {
       let db = await this.inventory.findOne({ user: user, guild: guild });
       const id = this.uuid();
 
-      console.log({
-        db,
-        bd: db.inventory.length,
-      });
-
       if (db && db.inventory.length > 0) {
         db.inventory.push({ id: id, name: name, item: item });
         await db.save();
