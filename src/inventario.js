@@ -87,7 +87,18 @@ class Inventario {
       let db = await this.inventory.findOne({ user: user, guild: guild });
       const id = this.uuid();
 
-      if (db && db.inventory > 0) {
+      console.log({
+        db,
+        bd: db.inventory.length,
+      });
+
+      if (db && db.inventory.length > 0) {
+        db.inventory.push({ id: id, name: name, item: item });
+        await db.save();
+        return { id: id, name: name, item: item };
+      }
+
+      if (db) {
         db.push({ id, name, item });
         db.inventory = inv;
         await db.save();
@@ -128,8 +139,6 @@ class Inventario {
     if (!db) return { inventario: false };
     let inv = await db.inventory.filter((item) => item.id !== id);
 
-    console.log(db.inventory);
-
     if (db) {
       if (inv && inv.length === 0) {
         db.inventory = inv;
@@ -144,7 +153,7 @@ class Inventario {
   }
 
   /**
-   * 
+   *
    * @param {String} user ID del usuario
    * @param {String} guild ID del servidor - Clave de Indentificación
    * @returns {Boolean} Retorna true si se elimina el inventario, false si no existe el inventario
