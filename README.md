@@ -4,8 +4,6 @@
 
 - [Zeew Eco](#zeew-eco)
   - [Información](#información)
-    - [Proximamente](#proximamente)
-    - [Actualizaciones](#actualizaciones)
     - [Proyectos](#proyectos)
   - [Instalación y uso del modulo](#instalación-y-uso-del-modulo)
   - [Modulos](#modulos)
@@ -45,18 +43,7 @@ Yo se que puede ser complicado crear una economia para tu bot de discord o inclu
 ahorar el tiempo en hacerlo. Por eso he creado este modulo que te ayudara a hacerlo
 en tampoco tiempo.
 
-No olvides que si tienes un error o propuesta para mejorar este NPM, solo tienes que unirte a este servidor de [Discord](discord.gg/6tCdxshm9w).
-
-### Proximamente
-
-* Opciones para cambiar la base de datos. MYSQL, SQLITE, MONGODB.
-* Implementacion con cards usando zeew api.
-
-### Actualizaciones
-
-* Documentacion Actualizada.
-* Links Arreglados
-* Ejemplos Arreglados
+No olvides que si tienes un error o propuesta para mejorar este NPM, solo tienes que unirte a este servidor de [Discord](https://zeew.dev/discord).
 
 ### Proyectos
 
