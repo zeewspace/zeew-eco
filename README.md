@@ -234,16 +234,18 @@ eco.ver(servidor.id);
   - ID del servidor
   - Nombre del Item
   - La descripcion del item
-  - el precio del item
-  - Boolean de si es o no un rol
-  - ID del rol
+  - El precio del item
+  - Item, rol, etc
 - Retorna:
-  - Retorna la ID del item creado
+  - Retorna un objecto
+  ```js
+    {id, name, description, price, item }
   ```
 
 ```js
 const td = new zeco.tienda();
-td.agregar(servidor.id, "Canal Propio", "un canal privado para ti", 20000, false, false,);
+td.agregar(servidor.id, "Canal Propio", "un canal privado para ti", 20000); // sin item
+td.agregar(servidor.id, "Rol Guapura", "Obten un rol llamado guapura", 10, "123123123"); // con item
 ```
 
 #### Tienda: Remover
