@@ -23,6 +23,10 @@
       - [Tienda: Reiniciar](#tienda-reiniciar)
     - [Inventario](#inventario)
       - [Inventario: Ver](#inventario-ver)
+      - [Inventario: Item](#inventario-item)
+      - [Inventario: Agregar](#inventario-agregar)
+      - [Inventario: Remover](#inventario-remover)
+      - [Inventario: Reiniciar](#inventario-reiniciar)
     - [Banco](#banco)
       - [Banco: Ver](#banco-ver)
       - [Banco: agregar](#banco-agregar)
@@ -287,9 +291,13 @@ const zeeweconomy = require("zeew-eco");
 const inventario = new zeeweconomy.Inventario();
 ```
 
-| Metodos | Descripcion                               |
-| ------- | ----------------------------------------- |
-| Ver     | Ver los objetos comprados desde la tienda |
+| Metodos   | Descripcion                               |
+| --------- | ----------------------------------------- |
+| Ver       | Ver los objetos comprados desde la tienda |
+| Item      | Ver un item del inventario                |
+| Agregar   | Agregar un item al inventario             |
+| Remover   | Remover un item del inventario            |
+| Reiniciar | Elimina invetario del usuario             |
 
 #### Inventario: Ver
 
@@ -305,7 +313,72 @@ const inventario = new zeeweconomy.Inventario();
 
 ```js
 const inv = new zeco.inventario();
-inv.ver(servidor.id, usuario.id);
+inv.ver(usuario.id, servidor.id);
+```
+
+#### Inventario: Item
+
+- Parametros:
+  - ID del usuario
+  - ID del servidor
+  - ID del Item
+- Retorna:
+  - Un objeto con los datos del item
+  - 
+    ```js
+        { id, name, item };
+    ```
+
+```js
+const inv = new zeco.inventario();
+inv.item(usuario.id, servidor.id, "asd23g34");
+```
+
+#### Inventario: Agregar
+
+- Parametros:
+  - ID del usaurio
+  - ID del servidor
+  - Nombre
+  - Item, rol, dinero, etc.
+- Retorna:
+  - Un objeto del nuevo item
+  - 
+    ```js
+        {id , name , item}
+    ```
+
+```js
+const inv = new zeco.inventario();
+inv.agregar(usuario.id, servidor.id, "Obten 100$", 100);
+```
+
+#### Inventario: Remover
+
+- Parametros:
+  - ID del usuario
+  - ID del servidor
+  - ID del item
+- Retorna:
+  - Retorna true si se elimina el item, false si no existe el item
+
+```js
+const inv = new zeco.inventario();
+inv.remover(usuario.id, servidor.id, "asd23g34");
+```
+
+#### Inventario: Reiniciar
+
+- Parametros:
+  - ID del usuario
+  - ID del servidor
+  - ID del item
+- Retorna:
+  - Retorna true si se elimina el item, false si no existe el item
+
+```js
+const inv = new zeco.inventario();
+inv.reiniciar(usuario.id, servidor.id);
 ```
 
 ### Banco

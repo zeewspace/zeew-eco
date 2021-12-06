@@ -1,17 +1,45 @@
+/**
+ * Clase Economia
+ * @class Economia
+ * @author Zeew.dev <proyects@zeew.dev>
+ * @author KamerrEzz <developer@kamerrezz>
+ * @description Clase Economia
+ */
+
 class Economy {
   constructor() {
+    /**
+     * @private
+     */
     this.model = require("./models/eco");
+    /**
+     * @private
+     */
     this.error = (e) => {
       console.log("[══════ Zeew Economia: " + e.message + " ═══════]");
     };
+    /**
+     * @private
+     */
     this.store = require("./models/store");
+    /**
+     * @private
+     */
     this.inventory = require("./models/inventory");
+    /**
+     * @private
+     */
+     this.uuid = () => {
+      const { v4: uuidv4 } = require("uuid");
+      let id = uuidv4();
+      return id.slice(0, 8);
+    };
   }
 
   /**
    *
-   * @param {*} user ID del usuarios
-   * @param {*} guild Id del servidor
+   * @param {String} user ID del usuarios
+   * @param {String} guild Id del servidor
    * @return {Number} Cantidad de dinero
    */
   async ver(user, guild) {
@@ -26,9 +54,9 @@ class Economy {
 
   /**
    *
-   * @param {*} user ID del usuario
-   * @param {*} guild ID del servidor
-   * @param {*} money Cantidad de dinero a agregar
+   * @param {String} user ID del usuario
+   * @param {String} guild ID del servidor
+   * @param {Number} money Cantidad de dinero a agregar
    * @return {Number} Cantidad de dinero
    */
   async agregar(user, guild, money) {
@@ -61,16 +89,16 @@ class Economy {
       }
     }
   }
+
   /**
    *
-   * @param {*} user ID del usuario
-   * @param {*} guild ID del servidor
-   * @param {*} money Cantidad de dinero a quitar
+   * @param {String} user ID del usuario
+   * @param {String} guild ID del servidor
+   * @param {Number} money Cantidad de dinero a quitar
    * @return {Number} Cantidad de dinero
    */
   async remover(user, guild, money) {
     let db = await this.model.findOne({ user: user, guild: guild });
-    console.log("db",db.money);
     if (db) {
       try {
         let remove = db.money - money;
@@ -89,8 +117,9 @@ class Economy {
 
   /**
    *
-   * @param {*} user ID del usuario
-   * @param {*} guild ID del servidor
+   * @param {String} user ID del usuario
+   * @param {String} guild ID del servidor
+   * @returns {Boolean} Da true si todo salio correctamente o false si no
    */
   async reiniciar(user, guild) {
     try {
@@ -98,14 +127,16 @@ class Economy {
       return true;
     } catch (error) {
       this.error(error);
+      return false;
     }
   }
 
   /**
    *
-   * @param {*} user ID del usuario
-   * @param {*} guild ID del servidor
-   * @param {*} id ID del item en la tiendam
+   * @param {String} user ID del usuario
+   * @param {String} guild ID del servidor
+   * @param {String} id ID del item en la tienda
+   * @returns {{item: {name: String, price: Number, id: String, role: String},money: Number, newmoney: Number }} Regresa el item, la cantidad de dinero y la cantidad de dinero despues de comprar el item
    */
   async comprar(user, guild, id) {
     try {
@@ -125,22 +156,23 @@ class Economy {
           name: a.name,
           price: a.price,
           id: a.id,
-          role: a.role,
+          item: a.item,
         }))[0];
 
       if (!item) return { item: false };
       if (db.money < item.price) return { price: false };
 
       let removemoney = db.money - item.price;
+      id = this.uuid()
 
       await this.remover(user, guild, item.price);
 
       let iv;
-      if (item.role) {
+      if (item.item) {
         iv = {
           id,
           name: item.name,
-          rol: item.role,
+          item: item.item,
         };
       } else {
         iv = {
@@ -181,11 +213,13 @@ class Economy {
       this.error(error);
     }
   }
+
   /**
    *
-   * @param {*} user ID del usuario
-   * @param {Numer} guild ID del servidor
-   * @param {*} count Cantidad maxima aleatoriamente
+   * @param {String} user ID del usuario
+   * @param {String} guild ID del servidor
+   * @param {Number} count Cantidad maxima aleatoriamente
+   * @returns {Number} Regresa un numero aleatorio entre 0 y count
    */
   async trabajar(user, guild, count) {
     let db = await this.model.findOne({ user: user, guild: guild });

@@ -1,5 +1,10 @@
 const mongoose = require("mongoose");
 class Options {
+  /**
+   * 
+   * @param {String} URI Mongodb URL
+   * @example Options("mongodb://localhost:27017/zeew")
+   */
   constructor(URI) {
     this._init(URI);
   }
@@ -20,7 +25,13 @@ class Options {
 }
 
 
-
+/**
+ * @export Options Clase para configurar la URL de la base de datos de mongodb
+ * @export Economia Clase con los metodos de la Economia
+ * @export Tienda Clase con los metodos de la Tienda
+ * @export Inventario Clase con los metodos de la Inventario
+ * @export Banco Clase con los metodos de la Banco
+ */
 module.exports = {
     Options,
     Economia: require('./src/economia'),

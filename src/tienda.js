@@ -1,9 +1,18 @@
 class tienda {
   constructor() {
+    /**
+     * @private
+     */
     this.model = require("./models/store");
-    this.error = () => {
+    /**
+     * @private
+     */
+    this.error = (e) => {
       console.log("[══════ Zeew Economia: " + e.message + " ═══════]");
     };
+    /**
+     * @private
+     */
     this.uuid = () => {
       const { v4: uuidv4 } = require("uuid");
       let id = uuidv4();
@@ -28,17 +37,17 @@ class tienda {
   }
   /**
    *
-   * @param {Number} guild ID del servidor
+   * @param {String} guild ID del servidor
    * @param {String} name Nombre del Item
    * @param {String} description Descripcion del item
    * @param {Number} price Precio del item
-   * @param {boolean} isRole Si es un rol
-   * @param {Number} role ID del rol
-   * @returns {Object} Datos Agregados
+   * @param {String} item alguna clave de algun item, role, emoji, etc
+   * @returns {{id: String, name: String, description: String,price: Number, item: String }} Datos Agregados
    */
-  async agregar(guild, name, description, price, isRole, role) {
+  async agregar(guild, name, description, price, item) {
     try {
       let findItem = await this.model.findOne({ guild: guild });
+      const id = this.uuid();
 
       if (findItem) {
         await this.model.updateOne(
@@ -47,42 +56,46 @@ class tienda {
             $push: {
               store: [
                 {
-                  id: this.uuid(),
+                  id,
                   name,
                   description,
                   price,
-                  isRole,
-                  role: role ? role : null,
+                  item: item ?? null,
                 },
               ],
             },
           }
         );
         return {
-          id: this.uuid(),
+          id,
           name,
           description,
           price,
-          isRole,
-          role: role ? role : null,
+          item: item ?? null,
         };
       } else {
         let add = new this.model({
           guild,
           store: [
             {
-              id: this.uuid(),
+              id,
               name,
               description,
               price,
               isRole,
-              role: role ? role : null,
+              item: item ?? null,
             },
           ],
         });
 
         await add.save();
-        return add.store[0];
+        return {
+          id,
+          name,
+          description,
+          price,
+          item: item ?? null,
+        };
       }
     } catch (error) {
       this.error(error);
