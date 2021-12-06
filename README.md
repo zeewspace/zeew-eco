@@ -230,7 +230,7 @@ const td = new zeeweconomy.Tienda();
   - Un array con los items que hay en la tienda
   - 
   ```js
-    [{ id, name, description, price, isRole, role }];
+    [{ id, name, description, price, item }];
   ```
 
 ```js
