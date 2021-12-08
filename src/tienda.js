@@ -82,7 +82,6 @@ class tienda {
               name,
               description,
               price,
-              isRole,
               item: item ?? null,
             },
           ],
