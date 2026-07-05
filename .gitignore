@@ -7,4 +7,5 @@
 *.json
 !package.json
 !tsconfig.json
+!package-lock.json
 tests/.test-data.json
