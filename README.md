@@ -2,7 +2,7 @@
 
 > Sistema de economia standalone y agnostico a bases de datos para bots de Discord. TypeScript, cero dependencias, backends de almacenamiento intercambiables.
 
-[![CI](https://github.com/zeewdev/zeew-eco/actions/workflows/ci.yml/badge.svg)](https://github.com/zeewdev/zeew-eco/actions/workflows/ci.yml)
+[![CI](https://github.com/zeewspace/zeew-eco/actions/workflows/ci.yml/badge.svg)](https://github.com/zeewspace/zeew-eco/actions/workflows/ci.yml)
 [![npm](https://img.shields.io/npm/v/zeew-eco)](https://www.npmjs.com/package/zeew-eco)
 [![license](https://img.shields.io/npm/l/zeew-eco)](./LICENSE)
 
@@ -169,12 +169,12 @@ npm run test:coverage # Con coverage
 
 ## Licencia
 
-[PolyForm Noncommercial License 1.0.0](./LICENSE) — uso gratuito para fines no comerciales. Uso comercial requiere licencia separada. Contacto: proyects@zeew.dev
+[PolyForm Noncommercial License 1.0.0](./LICENSE) — uso gratuito para fines no comerciales. Uso comercial requiere licencia separada. Contacto: team@zeew.space
 
 ## Comunidad
 
-- [Discord](https://zeew.dev/discord)
-- [GitHub Issues](https://github.com/zeewdev/zeew-eco/issues)
+- [Discord](https://zeew.space/discord)
+- [GitHub Issues](https://github.com/zeewspace/zeew-eco/issues)
 
 ---
 
@@ -233,4 +233,4 @@ See the full API reference in the [Spanish section](#referencia-de-la-api) above
 
 ## License
 
-[PolyForm Noncommercial License 1.0.0](./LICENSE) — free for noncommercial use. Commercial use requires a separate license. Contact: proyects@zeew.dev
+[PolyForm Noncommercial License 1.0.0](./LICENSE) — free for noncommercial use. Commercial use requires a separate license. Contact: team@zeew.space

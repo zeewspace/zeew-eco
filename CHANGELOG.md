@@ -41,5 +41,5 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - ⚠️ **Method names**: Spanish method names (`ver`, `agregar`, `remover`, `reiniciar`) replaced with English (`get`, `add`, `remove`, `reset`)
 - ⚠️ **Return types**: Error cases return `{ error: string }` objects instead of `{ false }` or `undefined`
 
-[Unreleased]: https://github.com/zeewdev/zeew-eco/compare/v2.0.0...HEAD
-[2.0.0]: https://github.com/zeewdev/zeew-eco/releases/tag/v2.0.0
+[Unreleased]: https://github.com/zeewspace/zeew-eco/compare/v2.0.0...HEAD
+[2.0.0]: https://github.com/zeewspace/zeew-eco/releases/tag/v2.0.0
