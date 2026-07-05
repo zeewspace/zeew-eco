@@ -1,471 +1,175 @@
-![Zeew Api](https://i.imgur.com/MP2bABn.png "Lo Mejor de Zeew")
+# zeew-eco
 
-# Zeew Eco
+> Standalone, database-agnostic economy system for Discord bots. TypeScript, zero runtime dependencies, pluggable storage backends.
 
-- [Zeew Eco](#zeew-eco)
-  - [Información](#información)
-    - [Proyectos](#proyectos)
-  - [Actualizaciones](#actualizaciones)
-  - [Instalación y uso del modulo](#instalación-y-uso-del-modulo)
-  - [Modulos](#modulos)
-    - [Economia](#economia)
-      - [Eco: Ver](#eco-ver)
-      - [Eco: Agregar](#eco-agregar)
-      - [Eco: Remover](#eco-remover)
-      - [Eco: Reiniciar](#eco-reiniciar)
-      - [Eco: Comprar](#eco-comprar)
-      - [Eco: Trabajar](#eco-trabajar)
-    - [Tienda](#tienda)
-      - [Tienda: Ver](#tienda-ver)
-      - [Tienda: Agregar](#tienda-agregar)
-      - [Tienda: Remover](#tienda-remover)
-      - [Tienda: Reiniciar](#tienda-reiniciar)
-    - [Inventario](#inventario)
-      - [Inventario: Ver](#inventario-ver)
-      - [Inventario: Item](#inventario-item)
-      - [Inventario: Agregar](#inventario-agregar)
-      - [Inventario: Remover](#inventario-remover)
-      - [Inventario: Reiniciar](#inventario-reiniciar)
-    - [Banco](#banco)
-      - [Banco: Ver](#banco-ver)
-      - [Banco: agregar](#banco-agregar)
-      - [Banco: remover](#banco-remover)
-      - [Banco: reiniciar](#banco-reiniciar)
-      - [Banco: depositar](#banco-depositar)
-      - [Banco: retirar](#banco-retirar)
+[![CI](https://github.com/zeewdev/zeew-eco/actions/workflows/ci.yml/badge.svg)](https://github.com/zeewdev/zeew-eco/actions/workflows/ci.yml)
+[![npm](https://img.shields.io/npm/v/zeew-eco)](https://www.npmjs.com/package/zeew-eco)
+[![license](https://img.shields.io/npm/l/zeew-eco)](./LICENSE)
 
-## Información
+## What is this?
 
-¡De devs para devs!
+zeew-eco provides a complete economy system — wallet, bank, store, inventory — for Discord bots. It is **database-agnostic**: bring your own storage backend via the `Adapter` interface. Ships with a zero-dependency JSON adapter and an optional SQLite adapter.
 
-Olvidate de hacer todas las validaciones, condiciones para crear la economia para tu proyecto.
+## Install
 
-Yo se que puede ser complicado crear una economia para tu bot de discord o incluso
-ahorar el tiempo en hacerlo. Por eso he creado este modulo que te ayudara a hacerlo
-en tampoco tiempo.
-
-No olvides que si tienes un error o propuesta para mejorar este NPM, solo tienes que unirte a este servidor de [Discord](https://zeew.dev/discord).
-
-### Proyectos
-
-| Proyecto                                   | Descripción                                           |
-| ------------------------------------------ | ----------------------------------------------------- |
-| [ZEEW](https://www.npmjs.com/package/zeew) | Descubre nuestra API Reset de Imágenes y manipulación |
-
-## Actualizaciones
-
-Tratamos de hacer el modulo muy completo, a si que vamos metiendo nuevas cosas,
-actualizaciones, agregando mas bases de datos, etc.
-
-Para saber mas puedes ir al repositorio en github https://github.com/zeewdev/zeew-eco
-donde colocamos primero las correcciones, algunas mejoras antes de publicarlo en npmjs
-
-
-## Instalación y uso del modulo
-
-Ya sabes el modo de instarlos, simplemente `npm install --save zeew-eco`.
-
-Para crear la conexion a la base de datos simplemente debes hacer esto.
-Pero recuerda que la opcion `Options` solo hace conexion a la base de datos de mongodb, si ya tienes una conexion, no la uses. Tambien solo se debe usar una vez para evitar multiples conexiones a la misma base de datos.
-
-```js
-    const zeeweco = require("zeew-eco");
-    new zeeeco.Options("URL MONGO");
+```bash
+npm install zeew-eco
 ```
 
-En los modulos podras ver las funciones que puedes usar.
-Por ejemplo `Economia` esta traera varias funciones que podras usar
-para hacer tu economia. Te doy un ejemplo de una de ellas.
+For SQLite support, also install the peer dependency:
 
-```js
-const zeeweconomy = require("zeew-eco");
-// Modulo de Zeew Eco
-const Economia = new zeeweconomy.Economia();
-
-//Funcion para ver la economia de un usuario
-const verEconomia = await Economia.ver(miembro, servidor);
-console.log(verEconomia)
-
+```bash
+npm install better-sqlite3
 ```
 
-Todas las funciones son promesas, asi que no olvides usar `await` y `async`
+## Quick Start
 
-## Modulos
+```typescript
+import { Economy, Store, Inventory, Bank, JsonAdapter } from "zeew-eco";
 
-### Economia
+const adapter = new JsonAdapter("./economy-data.json");
 
-```js
-const zeeweconomy = require("zeew-eco");
-const eco = new zeeweconomy.Economia();
+const eco = new Economy(adapter);
+const store = new Store(adapter);
+const inventory = new Inventory(adapter);
+const bank = new Bank(adapter);
+
+// Give a user 1000 coins
+await eco.add("user-id", "guild-id", 1000);
+
+// Create a store item
+const item = await store.add("guild-id", "VIP Role", "Exclusive VIP access", 500, "role_id");
+
+// User buys it
+const result = await eco.buy("user-id", "guild-id", item.id);
+// result: { item: {...}, money: 1000, newMoney: 500 }
+
+// Deposit to bank
+await bank.deposit("user-id", "guild-id", 200);
 ```
 
-| Métodos   | Descripción                         |
-| --------- | ----------------------------------- |
-| ver       | Muestra el dinero del usuario       |
-| agregar   | Agrega dinero aun usuario           |
-| remover   | Elimina el dinero de un usuario     |
-| reiniciar | Reiniciar la economia               |
-| comprar   | Comprar en la tienda                |
-| trabajar  | Ganar una cantidad de dinero RANDOM |
+## Adapters
 
-#### Eco: Ver
+| Adapter | Dependencies | Storage | Use case |
+|---------|-------------|---------|----------|
+| `JsonAdapter` | None | JSON file | Default, prototyping, small bots |
+| `SqliteAdapter` | `better-sqlite3` (peer) | SQLite file | Production, larger bots |
 
-Mira el dinero de un usuario en un servidor.
+### Custom Adapter
 
-- Parametros:
-  - ID del usuario
-  - ID del servidor
-- Retorna:
-  - La cantidad de dinero del usuario en el servidor
+Implement the `Adapter` interface to use any database:
 
-```js
-const eco = new zeeweconomy.Economia();
-eco.ver(miembro.id, servidor.id);
+```typescript
+import { Adapter, UserKey, GuildKey, MoneyRecord, StoreRecord, InventoryRecord, BankRecord } from "zeew-eco";
+
+class MongoAdapter implements Adapter {
+  async findMoney(key: UserKey): Promise<MoneyRecord | null> { /* ... */ }
+  async upsertMoney(key: UserKey, money: number): Promise<void> { /* ... */ }
+  async deleteMoney(key: UserKey): Promise<void> { /* ... */ }
+  // ... 9 more methods
+}
 ```
 
-#### Eco: Agregar
+## API Reference
 
-Agregar dinero a un usaurio en un servidor.
+### Economy
 
-- Parametros:
-  - ID del usuario
-  - ID del servidor
-  - Cantidad de dinero a agregar
-- Retorna:
-  - La cantidad de dinero del usuario en el servidor
+| Method | Signature | Returns |
+|--------|-----------|---------|
+| `get` | `(user: string, guild: string)` | `Promise<number>` — current balance |
+| `add` | `(user: string, guild: string, amount: number)` | `Promise<number>` — new balance |
+| `remove` | `(user: string, guild: string, amount: number)` | `Promise<number>` — new balance (min 0) |
+| `reset` | `(user: string, guild: string)` | `Promise<boolean>` |
+| `buy` | `(user: string, guild: string, itemId: string)` | `Promise<BuyResult \| { error: string }>` |
+| `work` | `(user: string, guild: string, maxEarnings: number)` | `Promise<number>` — earned amount |
 
-```js
-const eco = new zeeweconomy.Economia();
-eco.agregar(miembro.id, servidor.id, 1500);
+**BuyResult:**
+```typescript
+{ item: StoreItem, money: number, newMoney: number }
 ```
 
-#### Eco: Remover
+**Buy errors:** `store_not_found`, `user_not_found`, `item_not_found`, `insufficient_funds`
 
-- Parametros:
-  - ID del usuario
-  - ID del servidor
-  - Cantidad de dinero a remover
-- Retorna:
-  - La cantidad de dinero del usuario en el servidor
+### Store
 
-```js
-const eco = new zeeweconomy.Economia();
-eco.remover(miembro.id, servidor.id, 1500);
+| Method | Signature | Returns |
+|--------|-----------|---------|
+| `get` | `(guild: string)` | `Promise<StoreItem[]>` |
+| `add` | `(guild: string, name: string, description: string, price: number, item?: string)` | `Promise<StoreItem>` |
+| `remove` | `(guild: string, itemId: string)` | `Promise<boolean>` |
+| `reset` | `(guild: string)` | `Promise<boolean>` |
+
+**StoreItem:** `{ id, name, description, price, item }`
+
+### Inventory
+
+| Method | Signature | Returns |
+|--------|-----------|---------|
+| `get` | `(user: string, guild: string)` | `Promise<InventoryItem[]>` |
+| `getItem` | `(user: string, guild: string, itemId: string)` | `Promise<InventoryItem \| null>` |
+| `add` | `(user: string, guild: string, name: string, item?: string)` | `Promise<InventoryItem>` |
+| `remove` | `(user: string, guild: string, itemId: string)` | `Promise<boolean>` |
+| `reset` | `(user: string, guild: string)` | `Promise<boolean>` |
+
+**InventoryItem:** `{ id, name, item }`
+
+### Bank
+
+| Method | Signature | Returns |
+|--------|-----------|---------|
+| `get` | `(user: string, guild: string)` | `Promise<number>` |
+| `add` | `(user: string, guild: string, amount: number)` | `Promise<number>` |
+| `remove` | `(user: string, guild: string, amount: number)` | `Promise<number>` (min 0) |
+| `reset` | `(user: string, guild: string)` | `Promise<boolean>` |
+| `deposit` | `(user: string, guild: string, amount: number)` | `Promise<DepositResult \| { error: string }>` |
+| `withdraw` | `(user: string, guild: string, amount: number)` | `Promise<WithdrawResult \| { error: string }>` |
+
+**DepositResult / WithdrawResult:** `{ economy: number, bank: number }`
+
+**Deposit errors:** `economy_not_found`, `insufficient_funds`
+**Withdraw errors:** `bank_not_found`, `insufficient_funds`
+
+## Error Handling
+
+All methods return typed results. Operations that can fail return `{ error: string }` instead of throwing:
+
+```typescript
+const result = await eco.buy(user, guild, itemId);
+if ("error" in result) {
+  console.log(result.error); // "insufficient_funds" | "store_not_found" | ...
+} else {
+  console.log(result.newMoney);
+}
 ```
 
-#### Eco: Reiniciar
+## Migration from v1.x
 
-Elimina todo el dinero del usuario.
+| v1.x | v2.0 |
+|------|------|
+| `new Options(mongoUri)` | `new JsonAdapter(filePath)` |
+| `new Economia()` | `new Economy(adapter)` |
+| `eco.ver(u, g)` | `eco.get(u, g)` |
+| `eco.agregar(u, g, amt)` | `eco.add(u, g, amt)` |
+| `eco.remover(u, g, amt)` | `eco.remove(u, g, amt)` |
+| `eco.reiniciar(u, g)` | `eco.reset(u, g)` |
+| `eco.comprar(u, g, id)` | `eco.buy(u, g, id)` |
+| `eco.trabajar(u, g, max)` | `eco.work(u, g, max)` |
 
-- Parametros:
-  - ID del usuario
-  - ID del servidor
-- Retorna:
-  - True o false depediendo si se cumplio o no
+Same pattern for `Tienda` → `Store`, `Inventario` → `Inventory`, `Banco` → `Bank`.
 
-```js
-const eco = new zeeweconomy.Economia();
-eco.reiniciar(miembro.id, servidor.id);
+## Testing
+
+```bash
+npm test              # Run all 67 tests
+npm run test:watch    # Watch mode
+npm run test:coverage # With coverage
 ```
 
-#### Eco: Comprar
+## License
 
-Comprar dinero en la tienda.
+[PolyForm Noncommercial License 1.0.0](./LICENSE) — free for noncommercial use. Commercial use requires a separate license. Contact: proyects@zeew.dev
 
-- Parametros:
-  - ID del usuario
-  - ID del servidor
-  - ID del item
-- Retorna:
-  - 
-    ```js
-        {
-          item, // Item comprado
-          money, // Cantidad de dinero
-          newmoney, // Cantidad de dinero actualizado
-        }
-    ```
+## Community
 
-```js
-const eco = new zeeweconomy.Economia();
-eco.comprar(miembro.id, servidor.id, idproducto);
-```
-
-#### Eco: Trabajar
-
-Agrega dinero aleatorio al usaurio, como si fuera trabajando.
-`Tu tienes que hacer el cooldown de la economia.`
-
-- Parametros:
-  - ID del usuario
-  - ID del servidor
-  - Cantidad maxima que se puede ganar.
-- Retorna:
-  - El dinero ganado
-
-```js
-const eco = new zeeweconomy.Economia();
-eco.trabajar(miembro.id, servidor.id, 1500);
-```
-
-### Tienda
-
-```js
-const zeeweconomy = require("zeew-eco");
-const td = new zeeweconomy.Tienda();
-```
-
-| Metodos   | Descripcion                |
-| --------- | -------------------------- |
-| ver       | Muestra Items a la tienda  |
-| agregar   | Agrega Items a la tienda   |
-| remover   | Elimina Items de la tienda |
-| reiniciar | Elimina Items de la tienda |
-
-#### Tienda: Ver
-
-- Parametros:
-  - ID del servidor
-- Retorna:
-  - Un array con los items que hay en la tienda
-  - 
-  ```js
-    [{ id, name, description, price, item }];
-  ```
-
-```js
-const td = new zeco.tienda();
-eco.ver(servidor.id);
-```
-
-#### Tienda: Agregar
-
-- Parametros:
-  - ID del servidor
-  - Nombre del Item
-  - La descripcion del item
-  - El precio del item
-  - Item, rol, etc
-- Retorna:
-  - Retorna un objecto
-  ```js
-    {id, name, description, price, item }
-  ```
-
-```js
-const td = new zeco.tienda();
-td.agregar(servidor.id, "Canal Propio", "un canal privado para ti", 20000); // sin item
-td.agregar(servidor.id, "Rol Guapura", "Obten un rol llamado guapura", 10, "123123123"); // con item
-```
-
-#### Tienda: Remover
-- Parametros:
-  - ID del servidor
-  - ID del item
-- Retorna:
-  - True o false depediendo si se cumplio o no
-  
-```js
-const td = new zeco.tienda();
-td.remover(servidor.id, 1);
-```
-
-#### Tienda: Reiniciar
-
-- Parametros:
-  - ID del servidor
-  - ID del item
-- Retorna:
-  - True o false depediendo si se cumplio o no
-
-```js
-const td = new zeco.tienda();
-td.reiniciar(servidor.id);
-```
-
-### Inventario
-
-```js
-const zeeweconomy = require("zeew-eco");
-const inventario = new zeeweconomy.Inventario();
-```
-
-| Metodos   | Descripcion                               |
-| --------- | ----------------------------------------- |
-| Ver       | Ver los objetos comprados desde la tienda |
-| Item      | Ver un item del inventario                |
-| Agregar   | Agregar un item al inventario             |
-| Remover   | Remover un item del inventario            |
-| Reiniciar | Elimina invetario del usuario             |
-
-#### Inventario: Ver
-
-- Parametros:
-  - ID del servidor
-  - ID del usaurio
-- Retorna:
-  - Un array con los objetos que hay en el inventario
-  - 
-    ```js
-        [{ id, name }];
-    ```
-
-```js
-const inv = new zeco.inventario();
-inv.ver(usuario.id, servidor.id);
-```
-
-#### Inventario: Item
-
-- Parametros:
-  - ID del usuario
-  - ID del servidor
-  - ID del Item
-- Retorna:
-  - Un objeto con los datos del item
-  - 
-    ```js
-        { id, name, item };
-    ```
-
-```js
-const inv = new zeco.inventario();
-inv.item(usuario.id, servidor.id, "asd23g34");
-```
-
-#### Inventario: Agregar
-
-- Parametros:
-  - ID del usaurio
-  - ID del servidor
-  - Nombre
-  - Item, rol, dinero, etc.
-- Retorna:
-  - Un objeto del nuevo item
-  - 
-    ```js
-        {id , name , item}
-    ```
-
-```js
-const inv = new zeco.inventario();
-inv.agregar(usuario.id, servidor.id, "Obten 100$", 100);
-```
-
-#### Inventario: Remover
-
-- Parametros:
-  - ID del usuario
-  - ID del servidor
-  - ID del item
-- Retorna:
-  - Retorna true si se elimina el item, false si no existe el item
-
-```js
-const inv = new zeco.inventario();
-inv.remover(usuario.id, servidor.id, "asd23g34");
-```
-
-#### Inventario: Reiniciar
-
-- Parametros:
-  - ID del usuario
-  - ID del servidor
-  - ID del item
-- Retorna:
-  - Retorna true si se elimina el item, false si no existe el item
-
-```js
-const inv = new zeco.inventario();
-inv.reiniciar(usuario.id, servidor.id);
-```
-
-### Banco
-
-```js
-const zeeweconomy = require("zeew-eco");
-const banco = new zeeweconomy.Banco();
-```
-
-| Metodos   | Descripcion                    |
-| --------- | ------------------------------ |
-| Ver       | Muestra dinero del banco       |
-| agregar   | Agrega una cantidad de dinero  |
-| remover   | remover una cantidad de dinero |
-| reiniciar | Elimina el banco del usaurio   |
-| depositar | Deposita dinero al banco       |
-| retirar   | Retira dinero del banco        |
-
-#### Banco: Ver
-
-- Parametros:
-  - ID del user
-  - ID del servidor
-- Retorna:
-  - El dinero del banco
-
-```js
-banco.ver(user.id, servidor.id);
-```
-
-#### Banco: agregar
-
-- Parametros:
-  - ID del user
-  - ID del servidor
-- Retorna:
-  - El dinero del banco
-
-```js
-banco.agregar(user.id, servidor.id, 500);
-```
-
-#### Banco: remover
-
-- Parametros:
-  - ID del user
-  - ID del servidor
-- Retorna:
-  - El dinero del banco
-
-```js
-banco.remover(user.id, servidor.id, 500);
-```
-
-#### Banco: reiniciar
-
-- Parametros:
-  - ID del user
-  - ID del servidor
-- Retorna:
-  - El dinero del banco
-
-```js
-banco.reiniciar(user.id, servidor.id);
-```
-
-#### Banco: depositar
-
-- Parametros:
-  - ID del user
-  - ID del servidor
-  - Cantidad de dinero a depositar
-- Retorna:
-  - El dinero del banco
-
-```js
-banco.depositar(user.id, servidor.id, 500);
-```
-
-#### Banco: retirar
-
-- Parametros:
-  - ID del user
-  - ID del servidor
-  - Cantidad de dinero a depositar
-- Retorna:
-  - El dinero del banco
-
-```js
-banco.retirar(user.id, servidor.id, 500);
-```
+- [Discord](https://zeew.dev/discord)
+- [GitHub Issues](https://github.com/zeewdev/zeew-eco/issues)
