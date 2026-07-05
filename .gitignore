@@ -8,4 +8,5 @@
 !package.json
 !tsconfig.json
 !package-lock.json
+!opencode.json
 tests/.test-data.json

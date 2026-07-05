@@ -1,0 +1,6 @@
+{
+  "$schema": "https://opencode.ai/schema.json",
+  "skills": [
+    ".opencode/skills/zeew-eco/SKILL.md"
+  ]
+}
