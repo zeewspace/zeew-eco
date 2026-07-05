@@ -1,6 +1,62 @@
 # zeew-eco
 
-Standalone, database-agnostic economy system for Discord bots. TypeScript, zero runtime dependencies, pluggable storage backends.
+Sistema de economia standalone y agnostico a bases de datos para bots de Discord. TypeScript, czero dependencias, backends intercambiables.
+
+## Estructura del Proyecto
+
+```
+src/
+  adapters/
+    adapter.ts      — Interfaz Adapter (contrato para backends de almacenamiento)
+    json.ts         — JsonAdapter: almacenamiento JSON sin dependencias (default)
+    sqlite.ts       — SqliteAdapter: opcional, requiere better-sqlite3 peer dep
+  economy.ts        — Clase Economy: CRUD de billetera, comprar, trabajar
+  store.ts          — Clase Store: catalogo de items por guild
+  inventory.ts      — Clase Inventory: items comprados por user+guild
+  bank.ts           — Clase Bank: saldo bancario, depositar, retirar
+  index.ts          — API publica (solo named exports)
+  types.ts          — Interfaces TypeScript para todas las estructuras de datos
+tests/
+  mock-adapter.ts   — Adaptador en memoria para tests unitarios
+  unit/             — Tests unitarios por modulo (MockAdapter)
+  e2e/              — Tests E2E (JsonAdapter con file I/O real)
+```
+
+## Conceptos Clave
+
+- **Patron Adapter**: Todo el almacenamiento pasa por la interfaz `Adapter` (12 metodos). Los modulos nunca tocan archivos ni bases de datos directamente.
+- **Todos los metodos son async**: Cada operacion retorna una Promise.
+- **Manejo de errores**: Las operaciones que pueden fallar retornan objetos `{ error: string }`, nunca lanzan excepciones.
+- **Ambito User+Guild**: Los registros de dinero, inventario y banco estan delimitados por el par `(user, guild)`. Los registros de tienda estan delimitados solo por `guild`.
+
+## Comandos
+
+```bash
+npm test              # Ejecutar los 67 tests (vitest)
+npm run test:watch    # Modo watch
+npm run build         # Compilar TypeScript a dist/
+npm run prepublishOnly # Ejecuta build automaticamente antes de npm publish
+```
+
+## Tech Stack
+
+- TypeScript 5.7+ (modo estricto)
+- Vitest para testing
+- Node 20+ requerido
+- Cero dependencias runtime (better-sqlite3 es peer dep opcional)
+- Licencia: PolyForm Noncommercial 1.0.0
+
+## Convenciones
+
+- Solo named exports (sin default exports)
+- Conventional commits: `type(scope): subject`
+- Sin atribucion de IA en commits, tags o releases
+- Todos los tests deben pasar antes de commitear (`npm test`)
+- Type check con `npx tsc --noEmit`
+
+---
+
+# English
 
 ## Project Structure
 
