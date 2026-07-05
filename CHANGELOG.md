@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [2.0.0] - 2026-07-04
+## [3.0.0] - 2026-07-05
 
 ### Added
 
@@ -16,30 +16,29 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - JsonAdapter — zero-dependency JSON file storage (default)
 - SqliteAdapter — optional SQLite backend via `better-sqlite3` (peer dependency)
 - All adapters are swappable at construction time
-- Full ESM and CommonJS support via TypeScript compilation
+- Unit tests (59 tests) and E2E tests with vitest
+- GitHub Actions CI (Node 20, 22)
+- Bilingual documentation (Spanish + English)
+- AGENTS.md for LLM context
 
 ### Changed
 
-- Migrated from Mongoose to pluggable adapter architecture
-- All class constructors now accept an `Adapter` instance
-- Economy, Store, Inventory, and Bank modules refactored to adapter-based queries
-- Package entry point changed from `index.js` to `dist/index.js`
-- Package now ships with `.d.ts` type declarations
+- ⚠️ **BREAKING**: Migrated from Mongoose to pluggable adapter architecture
+- ⚠️ **BREAKING**: All class constructors now require an `Adapter` instance
+- ⚠️ **BREAKING**: Named exports — use `{ Economy, Store, Inventory, Bank, JsonAdapter }`
+- ⚠️ **BREAKING**: Method names in English (`get`, `add`, `remove`, `reset`, `buy`, `work`)
+- ⚠️ **BREAKING**: Error cases return `{ error: string }` instead of `false`/`undefined`
+- ⚠️ **BREAKING**: Package entry point is `dist/index.js` with `.d.ts` types
+- Package renamed on npm from `2.3.3` (Mongoose) to `3.0.0` (standalone)
+- License changed to PolyForm Noncommercial 1.0.0
+- Node.js >= 20 required
 
 ### Removed
 
-- Mongoose dependency (was required, now zero runtime dependencies)
-- `uuid` dependency (ID generation is now internal)
-- Legacy JavaScript source files (`index.js`, `src/*.js`, `src/models/`)
+- Mongoose dependency (zero runtime dependencies now)
+- `uuid` dependency (internal ID generation)
+- Legacy JavaScript source files
 - `Options` class (replaced by adapter instantiation)
 
-### Breaking Changes
-
-- ⚠️ **Constructor API changed**: All modules now require an `Adapter` instance instead of using global Mongoose connection
-- ⚠️ **Package entry point**: Changed from `index.js` to `dist/index.js`
-- ⚠️ **Named exports**: Use `{ Economy, Store, Inventory, Bank, JsonAdapter }` instead of `{ Options, Economia, Tienda, Inventario, Banco }`
-- ⚠️ **Method names**: Spanish method names (`ver`, `agregar`, `remover`, `reiniciar`) replaced with English (`get`, `add`, `remove`, `reset`)
-- ⚠️ **Return types**: Error cases return `{ error: string }` objects instead of `{ false }` or `undefined`
-
-[Unreleased]: https://github.com/zeewspace/zeew-eco/compare/v2.0.0...HEAD
-[2.0.0]: https://github.com/zeewspace/zeew-eco/releases/tag/v2.0.0
+[Unreleased]: https://github.com/zeewspace/zeew-eco/compare/v3.0.0...HEAD
+[3.0.0]: https://github.com/zeewspace/zeew-eco/releases/tag/v3.0.0
