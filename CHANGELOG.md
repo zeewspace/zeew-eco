@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.1.1] - 2026-07-05
+
+### Fixed
+
+- Include README.md and LICENSE in npm package files
+
 ## [3.1.0] - 2026-07-05
 
 ### Added
@@ -60,6 +66,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Legacy JavaScript source files
 - `Options` class (replaced by adapter instantiation)
 
-[Unreleased]: https://github.com/zeewspace/zeew-eco/compare/v3.1.0...HEAD
+[Unreleased]: https://github.com/zeewspace/zeew-eco/compare/v3.1.1...HEAD
+[3.1.1]: https://github.com/zeewspace/zeew-eco/compare/v3.1.0...v3.1.1
 [3.1.0]: https://github.com/zeewspace/zeew-eco/compare/v3.0.0...v3.1.0
 [3.0.0]: https://github.com/zeewspace/zeew-eco/releases/tag/v3.0.0
