@@ -7,6 +7,36 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.2.0] - 2026-07-05
+
+### Added
+
+- **MemoryAdapter** — in-memory storage, zero dependencies, ideal for tests
+- **MongoAdapter** — MongoDB backend via native `mongodb` driver
+- **RedisAdapter** — Redis backend via `ioredis`
+- **Daily rewards** — `Daily` class with streak tracking, configurable base reward and streak bonus
+- **Stock-limited store items** — `store.add()` accepts `{ stock }` option, auto-decrements on purchase
+- **Multi-currency** — `eco.add(user, guild, 100, "gems")`, `eco.get(user, guild, "tokens")`, works with all operations
+- **Transaction history** — `eco.history(user, guild)` returns full audit log of all balance changes
+- **Badges/Achievements** — `Badges` class: define, award, check, count, remove badges per guild
+- **Marketplace** — `Market` class: list items for sale, buy from other users, cancel listings, configurable fee
+- `Store.setStock(guild, itemId, stock)` — update stock after creation
+- `Economy.work()` returns `{ earned }` instead of plain number (breaking)
+- `BuyResult.money` field shows balance before purchase
+- Adapter interface expanded: `allMoney`, `allBank`, `getCooldown`, `setCooldown`, `findDaily`, `upsertDaily`, `addTransaction`, `getTransactions`, badge methods, market methods
+- 136 tests (up from 101)
+
+### Changed
+
+- ⚠️ **BREAKING**: `Economy.work()` returns `WorkResult | WorkCooldownResult` instead of `number`
+- ⚠️ **BREAKING**: `Economy.add/remove/transfer` accept optional `currency` parameter
+- ⚠️ **BREAKING**: `Store.add()` accepts optional `options` parameter for stock and currency
+- Adapter interface expanded with 15 new methods
+
+### Fixed
+
+- Buy/transfer compute new balance before adapter mutation (reference safety)
+
 ## [3.1.1] - 2026-07-05
 
 ### Fixed
@@ -66,7 +96,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Legacy JavaScript source files
 - `Options` class (replaced by adapter instantiation)
 
-[Unreleased]: https://github.com/zeewspace/zeew-eco/compare/v3.1.1...HEAD
+[Unreleased]: https://github.com/zeewspace/zeew-eco/compare/v3.2.0...HEAD
+[3.2.0]: https://github.com/zeewspace/zeew-eco/compare/v3.1.1...v3.2.0
 [3.1.1]: https://github.com/zeewspace/zeew-eco/compare/v3.1.0...v3.1.1
 [3.1.0]: https://github.com/zeewspace/zeew-eco/compare/v3.0.0...v3.1.0
 [3.0.0]: https://github.com/zeewspace/zeew-eco/releases/tag/v3.0.0

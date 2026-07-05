@@ -282,5 +282,59 @@ describe("Economy (unit)", () => {
       const inv = await adapter.findInventory({ user: "user1", guild: "guild1" });
       expect(inv?.inventory).toHaveLength(2);
     });
+
+    it("deducts stock on purchase", async () => {
+      await adapter.upsertStore({ guild: "guild1" }, [
+        { id: "item1", name: "Sword", description: "A sword", price: 100, item: null, stock: 2 },
+      ]);
+      await eco.buy("user1", "guild1", "item1");
+      const store = await adapter.findStore({ guild: "guild1" });
+      expect(store?.items[0].stock).toBe(1);
+    });
+
+    it("does not buy out of stock item", async () => {
+      await adapter.upsertStore({ guild: "guild1" }, [
+        { id: "item1", name: "Sword", description: "A sword", price: 100, item: null, stock: 0 },
+      ]);
+      const result = await eco.buy("user1", "guild1", "item1");
+      expect(result).toHaveProperty("error");
+    });
+  });
+
+  describe("multi-currency", () => {
+    it("adds and gets custom currency", async () => {
+      await eco.add("user1", "guild1", 100, "gems");
+      expect(await eco.get("user1", "guild1", "gems")).toBe(100);
+      expect(await eco.get("user1", "guild1")).toBe(0);
+    });
+
+    it("removes custom currency", async () => {
+      await eco.add("user1", "guild1", 100, "gems");
+      await eco.remove("user1", "guild1", 30, "gems");
+      expect(await eco.get("user1", "guild1", "gems")).toBe(70);
+    });
+
+    it("transfer with custom currency", async () => {
+      await eco.add("user1", "guild1", 500, "tokens");
+      const result = await eco.transfer("user1", "user2", "guild1", 100, "tokens");
+      if ("error" in result) throw new Error("Expected success");
+      expect(result.from).toBe(400);
+      expect(result.to).toBe(100);
+    });
+  });
+
+  describe("history", () => {
+    it("records transactions", async () => {
+      await eco.add("user1", "guild1", 100);
+      await eco.add("user1", "guild1", 50);
+      const history = await eco.history("user1", "guild1");
+      expect(history.length).toBeGreaterThanOrEqual(2);
+    });
+
+    it("respects limit", async () => {
+      for (let i = 0; i < 10; i++) await eco.add("user1", "guild1", 10);
+      const history = await eco.history("user1", "guild1", { limit: 3 });
+      expect(history).toHaveLength(3);
+    });
   });
 });

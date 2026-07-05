@@ -26,7 +26,8 @@ export class Store {
     name: string,
     description: string,
     price: number,
-    item?: string
+    item?: string,
+    options?: { stock?: number; currency?: string }
   ): Promise<StoreItem> {
     const record = await this.adapter.findStore({ guild });
     const items = record?.items ?? [];
@@ -36,10 +37,12 @@ export class Store {
       description,
       price,
       item: item ?? null,
+      stock: options?.stock ?? null,
+      currency: options?.currency ?? "default",
     };
     items.push(newItem);
     await this.adapter.upsertStore({ guild }, items);
-    this.logger?.debug(`[Store] added "${name}" to ${guild}`);
+    this.logger?.debug(`[Store] added "${name}" to ${guild}${options?.stock ? ` (stock: ${options.stock})` : ""}`);
     this.hooks?.onItemAdded?.(guild, newItem);
     return newItem;
   }
@@ -60,6 +63,19 @@ export class Store {
   async reset(guild: string): Promise<boolean> {
     await this.adapter.deleteStore({ guild });
     this.logger?.debug(`[Store] reset ${guild}`);
+    return true;
+  }
+
+  async setStock(guild: string, itemId: string, stock: number | null): Promise<boolean> {
+    const record = await this.adapter.findStore({ guild });
+    if (!record) return false;
+
+    const item = record.items.find((i) => i.id === itemId);
+    if (!item) return false;
+
+    item.stock = stock;
+    await this.adapter.upsertStore({ guild }, record.items);
+    this.logger?.debug(`[Store] stock for ${itemId} set to ${stock}`);
     return true;
   }
 }
