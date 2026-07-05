@@ -48,6 +48,15 @@ const result = await eco.buy("user-id", "guild-id", item.id);
 
 // Depositar al banco
 await bank.deposit("user-id", "guild-id", 200);
+
+// Leaderboard
+const top = await eco.leaderboard("guild-id", 10);
+
+// Transferir entre usuarios
+await eco.transfer("user-a", "user-b", "guild-id", 200);
+
+// Trabajar con cooldown (60 segundos)
+await eco.work("user-id", "guild-id", 500, { cooldown: 60_000 });
 ```
 
 ## Adaptadores
@@ -78,28 +87,29 @@ class MongoAdapter implements Adapter {
 
 | Metodo | Firma | Retorna |
 |--------|-------|---------|
-| `get` | `(user: string, guild: string)` | `Promise<number>` — saldo actual |
-| `add` | `(user: string, guild: string, amount: number)` | `Promise<number>` — nuevo saldo |
-| `remove` | `(user: string, guild: string, amount: number)` | `Promise<number>` — nuevo saldo (min 0) |
-| `reset` | `(user: string, guild: string)` | `Promise<boolean>` |
-| `buy` | `(user: string, guild: string, itemId: string)` | `Promise<BuyResult \| { error: string }>` |
-| `work` | `(user: string, guild: string, maxEarnings: number)` | `Promise<number>` — cantidad ganada |
+| `get` | `(user, guild)` | `Promise<number>` — saldo actual |
+| `add` | `(user, guild, amount)` | `Promise<number>` — nuevo saldo |
+| `remove` | `(user, guild, amount)` | `Promise<number>` — nuevo saldo (min 0) |
+| `reset` | `(user, guild)` | `Promise<boolean>` |
+| `buy` | `(user, guild, itemId)` | `Promise<BuyResult \| { error }>` |
+| `work` | `(user, guild, max, options?)` | `Promise<WorkResult \| WorkCooldownResult>` |
+| `transfer` | `(from, to, guild, amount)` | `Promise<TransferResult \| { error }>` |
+| `bulkAdd` | `(items: BulkItem[])` | `Promise<number>` — cantidad procesada |
+| `leaderboard` | `(guild, limit?)` | `Promise<LeaderboardEntry[]>` |
 
-**BuyResult:**
-```typescript
-{ item: StoreItem, money: number, newMoney: number }
-```
-
-**Errores de buy:** `store_not_found`, `user_not_found`, `item_not_found`, `insufficient_funds`
+**WorkResult:** `{ earned }` | **WorkCooldownResult:** `{ error: "cooldown", retryIn }`
+**TransferResult:** `{ from, to, amount }`
+**Buy errors:** `store_not_found`, `user_not_found`, `item_not_found`, `insufficient_funds`
+**Transfer errors:** `sender_not_found`, `insufficient_funds`
 
 ### Store
 
 | Metodo | Firma | Retorna |
 |--------|-------|---------|
-| `get` | `(guild: string)` | `Promise<StoreItem[]>` |
-| `add` | `(guild: string, name: string, description: string, price: number, item?: string)` | `Promise<StoreItem>` |
-| `remove` | `(guild: string, itemId: string)` | `Promise<boolean>` |
-| `reset` | `(guild: string)` | `Promise<boolean>` |
+| `get` | `(guild)` | `Promise<StoreItem[]>` |
+| `add` | `(guild, name, description, price, item?)` | `Promise<StoreItem>` |
+| `remove` | `(guild, itemId)` | `Promise<boolean>` |
+| `reset` | `(guild)` | `Promise<boolean>` |
 
 **StoreItem:** `{ id, name, description, price, item }`
 
@@ -107,11 +117,11 @@ class MongoAdapter implements Adapter {
 
 | Metodo | Firma | Retorna |
 |--------|-------|---------|
-| `get` | `(user: string, guild: string)` | `Promise<InventoryItem[]>` |
-| `getItem` | `(user: string, guild: string, itemId: string)` | `Promise<InventoryItem \| null>` |
-| `add` | `(user: string, guild: string, name: string, item?: string)` | `Promise<InventoryItem>` |
-| `remove` | `(user: string, guild: string, itemId: string)` | `Promise<boolean>` |
-| `reset` | `(user: string, guild: string)` | `Promise<boolean>` |
+| `get` | `(user, guild)` | `Promise<InventoryItem[]>` |
+| `getItem` | `(user, guild, itemId)` | `Promise<InventoryItem \| null>` |
+| `add` | `(user, guild, name, item?)` | `Promise<InventoryItem>` |
+| `remove` | `(user, guild, itemId)` | `Promise<boolean>` |
+| `reset` | `(user, guild)` | `Promise<boolean>` |
 
 **InventoryItem:** `{ id, name, item }`
 
@@ -119,17 +129,17 @@ class MongoAdapter implements Adapter {
 
 | Metodo | Firma | Retorna |
 |--------|-------|---------|
-| `get` | `(user: string, guild: string)` | `Promise<number>` |
-| `add` | `(user: string, guild: string, amount: number)` | `Promise<number>` |
-| `remove` | `(user: string, guild: string, amount: number)` | `Promise<number>` (min 0) |
-| `reset` | `(user: string, guild: string)` | `Promise<boolean>` |
-| `deposit` | `(user: string, guild: string, amount: number)` | `Promise<DepositResult \| { error: string }>` |
-| `withdraw` | `(user: string, guild: string, amount: number)` | `Promise<WithdrawResult \| { error: string }>` |
+| `get` | `(user, guild)` | `Promise<number>` |
+| `add` | `(user, guild, amount)` | `Promise<number>` |
+| `remove` | `(user, guild, amount)` | `Promise<number>` (min 0) |
+| `reset` | `(user, guild)` | `Promise<boolean>` |
+| `deposit` | `(user, guild, amount)` | `Promise<DepositResult \| { error }>` |
+| `withdraw` | `(user, guild, amount)` | `Promise<WithdrawResult \| { error }>` |
+| `leaderboard` | `(guild, limit?)` | `Promise<LeaderboardEntry[]>` |
 
-**DepositResult / WithdrawResult:** `{ economy: number, bank: number }`
-
-**Errores de deposit:** `economy_not_found`, `insufficient_funds`
-**Errores de withdraw:** `bank_not_found`, `insufficient_funds`
+**DepositResult / WithdrawResult:** `{ economy, bank }`
+**Deposit errors:** `economy_not_found`, `insufficient_funds`
+**Withdraw errors:** `bank_not_found`, `insufficient_funds`
 
 ## Manejo de Errores
 
@@ -144,7 +154,69 @@ if ("error" in result) {
 }
 ```
 
-## Migracion desde v1.x
+## Hooks (Eventos)
+
+Todos los modulos soportan hooks para reaccionar a cambios:
+
+```typescript
+const eco = new Economy(adapter, {
+  hooks: {
+    onBalanceChange: (user, guild, oldBal, newBal) => {
+      console.log(`${user} balance: ${oldBal} → ${newBal}`);
+    },
+    onPurchase: (user, guild, item) => {
+      console.log(`${user} bought ${item.name}`);
+    },
+    onTransfer: (from, to, guild, amount) => {
+      console.log(`${from} sent ${amount} to ${to}`);
+    },
+    onWork: (user, guild, earned) => {
+      console.log(`${user} earned ${earned}`);
+    },
+  },
+});
+```
+
+**Hooks disponibles por modulo:**
+
+| Modulo | Hooks |
+|--------|-------|
+| `Economy` | `onBalanceChange`, `onPurchase`, `onTransfer`, `onWork` |
+| `Store` | `onItemAdded`, `onItemRemoved` |
+| `Inventory` | `onItemAdded`, `onItemRemoved` |
+| `Bank` | `onBalanceChange`, `onDeposit`, `onWithdraw` |
+
+## Logger
+
+Todos los modulos aceptan un logger opcional para debug:
+
+```typescript
+const eco = new Economy(adapter, { logger: console });
+// [Economy] add 100 to user1@guild1 → 600
+```
+
+Cualquier objeto con `info`, `warn`, `error`, `debug` sirve (console, pino, winston, etc).
+
+## Migracion desde v1.x (MongoDB)
+
+Exporta tus colecciones de MongoDB como JSON y usa la funcion de migracion:
+
+```typescript
+import { JsonAdapter, migrateFromV1 } from "zeew-eco";
+
+const data = {
+  economy: require("./export-economia.json"),
+  stores: require("./export-store.json"),
+  inventory: require("./export-inventory.json"),
+  bank: require("./export-banco.json"),
+};
+
+const adapter = new JsonAdapter("./migrated.json");
+const result = await migrateFromV1(adapter, data);
+// { economy: 150, stores: 3, inventory: 89, bank: 42 }
+```
+
+## Migracion de v1.x a v3.x
 
 | v1.x | v2.0 |
 |------|------|
@@ -162,7 +234,7 @@ Mismo patron para `Tienda` → `Store`, `Inventario` → `Inventory`, `Banco` �
 ## Testing
 
 ```bash
-npm test              # Ejecutar los 67 tests
+npm test              # Ejecutar los 101 tests
 npm run test:watch    # Modo watch
 npm run test:coverage # Con coverage
 ```
@@ -224,12 +296,12 @@ Implement the `Adapter` interface for any database (MongoDB, PostgreSQL, Redis, 
 
 | Module | Methods |
 |--------|---------|
-| `Economy` | `get`, `add`, `remove`, `reset`, `buy`, `work` |
+| `Economy` | `get`, `add`, `remove`, `reset`, `buy`, `work`, `transfer`, `bulkAdd`, `leaderboard` |
 | `Store` | `get`, `add`, `remove`, `reset` |
 | `Inventory` | `get`, `getItem`, `add`, `remove`, `reset` |
-| `Bank` | `get`, `add`, `remove`, `reset`, `deposit`, `withdraw` |
+| `Bank` | `get`, `add`, `remove`, `reset`, `deposit`, `withdraw`, `leaderboard` |
 
-See the full API reference in the [Spanish section](#referencia-de-la-api) above.
+All modules support **hooks** (events) and optional **logger**. See full API reference in the [Spanish section](#referencia-de-la-api).
 
 ## License
 

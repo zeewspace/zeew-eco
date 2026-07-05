@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach } from "vitest";
+import { describe, it, expect, beforeEach, vi } from "vitest";
 import { Store } from "../../src/store";
 import { MockAdapter } from "../mock-adapter";
 
@@ -85,6 +85,33 @@ describe("Store (unit)", () => {
 
       expect(await store.reset("guild1")).toBe(true);
       expect(await store.get("guild1")).toEqual([]);
+    });
+  });
+
+  describe("hooks", () => {
+    it("calls onItemAdded", async () => {
+      const onItemAdded = vi.fn();
+      const hookedStore = new Store(adapter, { hooks: { onItemAdded } });
+      await hookedStore.add("guild1", "Sword", "A sword", 100);
+      expect(onItemAdded).toHaveBeenCalledOnce();
+      expect(onItemAdded.mock.calls[0][0]).toBe("guild1");
+    });
+
+    it("calls onItemRemoved", async () => {
+      const onItemRemoved = vi.fn();
+      const hookedStore = new Store(adapter, { hooks: { onItemRemoved } });
+      const item = await hookedStore.add("guild1", "Sword", "A sword", 100);
+      await hookedStore.remove("guild1", item.id);
+      expect(onItemRemoved).toHaveBeenCalledWith("guild1", item.id);
+    });
+  });
+
+  describe("logger", () => {
+    it("calls logger.debug on operations", async () => {
+      const logger = { info: vi.fn(), warn: vi.fn(), error: vi.fn(), debug: vi.fn() };
+      const loggedStore = new Store(adapter, { logger });
+      await loggedStore.add("guild1", "Sword", "A sword", 100);
+      expect(logger.debug).toHaveBeenCalled();
     });
   });
 });

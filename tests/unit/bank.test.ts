@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach } from "vitest";
+import { describe, it, expect, beforeEach, vi } from "vitest";
 import { Bank } from "../../src/bank";
 import { MockAdapter } from "../mock-adapter";
 
@@ -134,6 +134,54 @@ describe("Bank (unit)", () => {
       if ("error" in result) throw new Error("Expected success");
       expect(result.economy).toBe(500);
       expect(result.bank).toBe(300);
+    });
+  });
+
+  describe("leaderboard", () => {
+    beforeEach(async () => {
+      await adapter.upsertBank({ user: "user1", guild: "guild1" }, 500);
+      await adapter.upsertBank({ user: "user2", guild: "guild1" }, 1000);
+      await adapter.upsertBank({ user: "user3", guild: "guild1" }, 750);
+      await adapter.upsertBank({ user: "user4", guild: "guild2" }, 9999);
+    });
+
+    it("returns top users sorted by bank balance", async () => {
+      const top = await bank.leaderboard("guild1");
+      expect(top).toHaveLength(3);
+      expect(top[0].user).toBe("user2");
+      expect(top[0].money).toBe(1000);
+    });
+
+    it("respects limit", async () => {
+      const top = await bank.leaderboard("guild1", 1);
+      expect(top).toHaveLength(1);
+    });
+  });
+
+  describe("hooks", () => {
+    it("calls onDeposit", async () => {
+      const onDeposit = vi.fn();
+      const hookedBank = new Bank(adapter, { hooks: { onDeposit } });
+      await adapter.upsertMoney({ user: "user1", guild: "guild1" }, 500);
+      await hookedBank.deposit("user1", "guild1", 100);
+      expect(onDeposit).toHaveBeenCalledWith("user1", "guild1", 100);
+    });
+
+    it("calls onWithdraw", async () => {
+      const onWithdraw = vi.fn();
+      const hookedBank = new Bank(adapter, { hooks: { onWithdraw } });
+      await adapter.upsertBank({ user: "user1", guild: "guild1" }, 500);
+      await hookedBank.withdraw("user1", "guild1", 100);
+      expect(onWithdraw).toHaveBeenCalledWith("user1", "guild1", 100);
+    });
+  });
+
+  describe("logger", () => {
+    it("calls logger.debug on operations", async () => {
+      const logger = { info: vi.fn(), warn: vi.fn(), error: vi.fn(), debug: vi.fn() };
+      const loggedBank = new Bank(adapter, { logger });
+      await loggedBank.add("user1", "guild1", 100);
+      expect(logger.debug).toHaveBeenCalled();
     });
   });
 });

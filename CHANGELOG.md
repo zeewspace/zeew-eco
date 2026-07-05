@@ -7,6 +7,26 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.1.0] - 2026-07-05
+
+### Added
+
+- `Economy.leaderboard(guild, limit)` — top users ranked by wallet balance
+- `Bank.leaderboard(guild, limit)` — top users ranked by bank balance
+- `Economy.transfer(from, to, guild, amount)` — atomic user-to-user transfers
+- `Economy.bulkAdd(items)` — add money to multiple users in one call
+- `Economy.work()` cooldown support — pass `{ cooldown: ms }` to rate-limit
+- Event hooks: `onBalanceChange`, `onPurchase`, `onTransfer`, `onWork`, `onDeposit`, `onWithdraw`, `onItemAdded`, `onItemRemoved`
+- Optional `logger` support on all modules (info/warn/error/debug)
+- `migrateFromV1(adapter, data)` — migrate MongoDB (v1.x) exports to any v3 adapter
+- 101 tests (up from 67)
+
+### Changed
+
+- `work()` now returns `{ earned }` (WorkResult) or `{ error: "cooldown", retryIn }` instead of plain number
+- Adapter interface expanded: `allMoney(guild)`, `allBank(guild)`, `getCooldown()`, `setCooldown()`
+- All modules accept optional `options` parameter for hooks and logger
+
 ## [3.0.0] - 2026-07-05
 
 ### Added
@@ -40,5 +60,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Legacy JavaScript source files
 - `Options` class (replaced by adapter instantiation)
 
-[Unreleased]: https://github.com/zeewspace/zeew-eco/compare/v3.0.0...HEAD
+[Unreleased]: https://github.com/zeewspace/zeew-eco/compare/v3.1.0...HEAD
+[3.1.0]: https://github.com/zeewspace/zeew-eco/compare/v3.0.0...v3.1.0
 [3.0.0]: https://github.com/zeewspace/zeew-eco/releases/tag/v3.0.0

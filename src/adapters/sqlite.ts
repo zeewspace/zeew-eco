@@ -12,7 +12,6 @@ export class SqliteAdapter implements Adapter {
   private db: any;
 
   constructor(dbPath: string = "./zeew-eco.db") {
-    // Dynamic import — user must install better-sqlite3
     try {
       // eslint-disable-next-line @typescript-eslint/no-var-requires
       const Database = require("better-sqlite3");
@@ -49,6 +48,13 @@ export class SqliteAdapter implements Adapter {
         money INTEGER NOT NULL DEFAULT 0,
         PRIMARY KEY (user_id, guild_id)
       );
+      CREATE TABLE IF NOT EXISTS cooldowns (
+        user_id TEXT NOT NULL,
+        guild_id TEXT NOT NULL,
+        action TEXT NOT NULL,
+        timestamp INTEGER NOT NULL,
+        PRIMARY KEY (user_id, guild_id, action)
+      );
     `);
   }
 
@@ -71,6 +77,13 @@ export class SqliteAdapter implements Adapter {
     this.db
       .prepare("DELETE FROM money WHERE user_id = ? AND guild_id = ?")
       .run(key.user, key.guild);
+  }
+
+  async allMoney(guild: string): Promise<MoneyRecord[]> {
+    const rows = this.db
+      .prepare("SELECT user_id, guild_id, money FROM money WHERE guild_id = ?")
+      .all(guild);
+    return rows.map((r: any) => ({ user: r.user_id, guild: r.guild_id, money: r.money }));
   }
 
   async findStore(key: GuildKey): Promise<StoreRecord | null> {
@@ -134,6 +147,28 @@ export class SqliteAdapter implements Adapter {
     this.db
       .prepare("DELETE FROM bank WHERE user_id = ? AND guild_id = ?")
       .run(key.user, key.guild);
+  }
+
+  async allBank(guild: string): Promise<BankRecord[]> {
+    const rows = this.db
+      .prepare("SELECT user_id, guild_id, money FROM bank WHERE guild_id = ?")
+      .all(guild);
+    return rows.map((r: any) => ({ user: r.user_id, guild: r.guild_id, money: r.money }));
+  }
+
+  async getCooldown(user: string, guild: string, action: string): Promise<number | null> {
+    const row = this.db
+      .prepare("SELECT timestamp FROM cooldowns WHERE user_id = ? AND guild_id = ? AND action = ?")
+      .get(user, guild, action);
+    return row?.timestamp ?? null;
+  }
+
+  async setCooldown(user: string, guild: string, action: string, timestamp: number): Promise<void> {
+    this.db
+      .prepare(
+        "INSERT INTO cooldowns (user_id, guild_id, action, timestamp) VALUES (?, ?, ?, ?) ON CONFLICT(user_id, guild_id, action) DO UPDATE SET timestamp = excluded.timestamp"
+      )
+      .run(user, guild, action, timestamp);
   }
 
   close(): void {

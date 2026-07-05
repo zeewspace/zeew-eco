@@ -11,6 +11,7 @@ export interface Adapter {
   findMoney(key: UserKey): Promise<MoneyRecord | null>;
   upsertMoney(key: UserKey, money: number): Promise<void>;
   deleteMoney(key: UserKey): Promise<void>;
+  allMoney(guild: string): Promise<MoneyRecord[]>;
 
   findStore(key: GuildKey): Promise<StoreRecord | null>;
   upsertStore(key: GuildKey, items: StoreRecord["items"]): Promise<void>;
@@ -23,4 +24,8 @@ export interface Adapter {
   findBank(key: UserKey): Promise<BankRecord | null>;
   upsertBank(key: UserKey, money: number): Promise<void>;
   deleteBank(key: UserKey): Promise<void>;
+  allBank(guild: string): Promise<BankRecord[]>;
+
+  getCooldown(user: string, guild: string, action: string): Promise<number | null>;
+  setCooldown(user: string, guild: string, action: string, timestamp: number): Promise<void>;
 }

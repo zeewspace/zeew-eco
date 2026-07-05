@@ -13,12 +13,14 @@ export class MockAdapter implements Adapter {
   stores: StoreRecord[] = [];
   inventory: InventoryRecord[] = [];
   bank: BankRecord[] = [];
+  cooldowns: Map<string, number> = new Map();
 
   reset(): void {
     this.money = [];
     this.stores = [];
     this.inventory = [];
     this.bank = [];
+    this.cooldowns.clear();
   }
 
   async findMoney(key: UserKey): Promise<MoneyRecord | null> {
@@ -37,6 +39,10 @@ export class MockAdapter implements Adapter {
 
   async deleteMoney(key: UserKey): Promise<void> {
     this.money = this.money.filter((r) => !(r.user === key.user && r.guild === key.guild));
+  }
+
+  async allMoney(guild: string): Promise<MoneyRecord[]> {
+    return this.money.filter((r) => r.guild === guild).map((r) => ({ ...r }));
   }
 
   async findStore(key: GuildKey): Promise<StoreRecord | null> {
@@ -93,5 +99,19 @@ export class MockAdapter implements Adapter {
 
   async deleteBank(key: UserKey): Promise<void> {
     this.bank = this.bank.filter((r) => !(r.user === key.user && r.guild === key.guild));
+  }
+
+  async allBank(guild: string): Promise<BankRecord[]> {
+    return this.bank.filter((r) => r.guild === guild).map((r) => ({ ...r }));
+  }
+
+  async getCooldown(user: string, guild: string, action: string): Promise<number | null> {
+    const key = `${user}:${guild}:${action}`;
+    return this.cooldowns.get(key) ?? null;
+  }
+
+  async setCooldown(user: string, guild: string, action: string, timestamp: number): Promise<void> {
+    const key = `${user}:${guild}:${action}`;
+    this.cooldowns.set(key, timestamp);
   }
 }

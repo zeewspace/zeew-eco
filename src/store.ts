@@ -1,12 +1,20 @@
 import { Adapter } from "./adapters/adapter";
-import { StoreItem } from "./types";
+import { StoreItem, StoreOptions } from "./types";
 
 function generateId(): string {
   return Math.random().toString(36).substring(2, 10);
 }
 
 export class Store {
-  constructor(private adapter: Adapter) {}
+  private adapter: Adapter;
+  private hooks;
+  private logger;
+
+  constructor(adapter: Adapter, options?: StoreOptions) {
+    this.adapter = adapter;
+    this.hooks = options?.hooks;
+    this.logger = options?.logger;
+  }
 
   async get(guild: string): Promise<StoreItem[]> {
     const record = await this.adapter.findStore({ guild });
@@ -31,6 +39,8 @@ export class Store {
     };
     items.push(newItem);
     await this.adapter.upsertStore({ guild }, items);
+    this.logger?.debug(`[Store] added "${name}" to ${guild}`);
+    this.hooks?.onItemAdded?.(guild, newItem);
     return newItem;
   }
 
@@ -42,11 +52,14 @@ export class Store {
     if (filtered.length === record.items.length) return false;
 
     await this.adapter.upsertStore({ guild }, filtered);
+    this.logger?.debug(`[Store] removed item ${itemId} from ${guild}`);
+    this.hooks?.onItemRemoved?.(guild, itemId);
     return true;
   }
 
   async reset(guild: string): Promise<boolean> {
     await this.adapter.deleteStore({ guild });
+    this.logger?.debug(`[Store] reset ${guild}`);
     return true;
   }
 }

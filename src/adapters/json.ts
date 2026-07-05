@@ -10,11 +10,17 @@ import {
   BankRecord,
 } from "../types";
 
+interface CooldownEntry {
+  key: string;
+  timestamp: number;
+}
+
 interface JsonDB {
   money: MoneyRecord[];
   stores: StoreRecord[];
   inventory: InventoryRecord[];
   bank: BankRecord[];
+  cooldowns: CooldownEntry[];
 }
 
 function matchUser(a: UserKey, b: UserKey): boolean {
@@ -23,6 +29,10 @@ function matchUser(a: UserKey, b: UserKey): boolean {
 
 function matchGuild(a: GuildKey, b: GuildKey): boolean {
   return a.guild === b.guild;
+}
+
+function cooldownKey(user: string, guild: string, action: string): string {
+  return `${user}:${guild}:${action}`;
 }
 
 export class JsonAdapter implements Adapter {
@@ -38,12 +48,13 @@ export class JsonAdapter implements Adapter {
     try {
       if (fs.existsSync(this.filePath)) {
         const raw = fs.readFileSync(this.filePath, "utf-8");
-        return JSON.parse(raw);
+        const parsed = JSON.parse(raw);
+        return { ...parsed, cooldowns: parsed.cooldowns ?? [] };
       }
     } catch {
       // corrupted file, start fresh
     }
-    return { money: [], stores: [], inventory: [], bank: [] };
+    return { money: [], stores: [], inventory: [], bank: [], cooldowns: [] };
   }
 
   private save(): void {
@@ -67,6 +78,10 @@ export class JsonAdapter implements Adapter {
   async deleteMoney(key: UserKey): Promise<void> {
     this.data.money = this.data.money.filter((r) => !matchUser(r, key));
     this.save();
+  }
+
+  async allMoney(guild: string): Promise<MoneyRecord[]> {
+    return this.data.money.filter((r) => r.guild === guild);
   }
 
   async findStore(key: GuildKey): Promise<StoreRecord | null> {
@@ -123,6 +138,27 @@ export class JsonAdapter implements Adapter {
 
   async deleteBank(key: UserKey): Promise<void> {
     this.data.bank = this.data.bank.filter((r) => !matchUser(r, key));
+    this.save();
+  }
+
+  async allBank(guild: string): Promise<BankRecord[]> {
+    return this.data.bank.filter((r) => r.guild === guild);
+  }
+
+  async getCooldown(user: string, guild: string, action: string): Promise<number | null> {
+    const key = cooldownKey(user, guild, action);
+    const entry = this.data.cooldowns.find((c) => c.key === key);
+    return entry?.timestamp ?? null;
+  }
+
+  async setCooldown(user: string, guild: string, action: string, timestamp: number): Promise<void> {
+    const key = cooldownKey(user, guild, action);
+    const idx = this.data.cooldowns.findIndex((c) => c.key === key);
+    if (idx >= 0) {
+      this.data.cooldowns[idx].timestamp = timestamp;
+    } else {
+      this.data.cooldowns.push({ key, timestamp });
+    }
     this.save();
   }
 }

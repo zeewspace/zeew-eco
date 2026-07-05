@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach } from "vitest";
+import { describe, it, expect, beforeEach, vi } from "vitest";
 import { Inventory } from "../../src/inventory";
 import { MockAdapter } from "../mock-adapter";
 
@@ -98,6 +98,34 @@ describe("Inventory (unit)", () => {
 
       expect(await inv.reset("user1", "guild1")).toBe(true);
       expect(await inv.get("user1", "guild1")).toEqual([]);
+    });
+  });
+
+  describe("hooks", () => {
+    it("calls onItemAdded", async () => {
+      const onItemAdded = vi.fn();
+      const hookedInv = new Inventory(adapter, { hooks: { onItemAdded } });
+      await hookedInv.add("user1", "guild1", "Sword", "role1");
+      expect(onItemAdded).toHaveBeenCalledOnce();
+      expect(onItemAdded.mock.calls[0][0]).toBe("user1");
+      expect(onItemAdded.mock.calls[0][1]).toBe("guild1");
+    });
+
+    it("calls onItemRemoved", async () => {
+      const onItemRemoved = vi.fn();
+      const hookedInv = new Inventory(adapter, { hooks: { onItemRemoved } });
+      const item = await hookedInv.add("user1", "guild1", "Sword", "role1");
+      await hookedInv.remove("user1", "guild1", item.id);
+      expect(onItemRemoved).toHaveBeenCalledWith("user1", "guild1", item.id);
+    });
+  });
+
+  describe("logger", () => {
+    it("calls logger.debug on operations", async () => {
+      const logger = { info: vi.fn(), warn: vi.fn(), error: vi.fn(), debug: vi.fn() };
+      const loggedInv = new Inventory(adapter, { logger });
+      await loggedInv.add("user1", "guild1", "Sword");
+      expect(logger.debug).toHaveBeenCalled();
     });
   });
 });

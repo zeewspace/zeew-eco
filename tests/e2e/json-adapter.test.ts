@@ -44,7 +44,9 @@ describe("E2E with JsonAdapter", () => {
     expect(await inv.get(user, guild)).toEqual([]);
 
     // Work to earn money
-    const earned = await eco.work(user, guild, 500);
+    const workResult = await eco.work(user, guild, 500);
+    if ("error" in workResult) throw new Error("Work should not have cooldown");
+    const earned = workResult.earned;
     expect(earned).toBeGreaterThanOrEqual(0);
     expect(await eco.get(user, guild)).toBe(earned);
 
