@@ -1,10 +1,15 @@
 {
   "name": "zeew-eco",
-  "version": "2.3.3",
-  "description": "Economia Basica Para Tu Bot Discord.js [Zeew]",
-  "main": "index.js",
+  "version": "2.0.0",
+  "description": "Standalone, database-agnostic economy system for Discord bots",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
   "scripts": {
-    "docs": "jsdoc -c ./jsdoc.json"
+    "build": "tsc",
+    "prepublishOnly": "npm run build"
   },
   "repository": {
     "type": "git",
@@ -12,19 +17,34 @@
   },
   "keywords": [
     "discord.js",
-    "discord economia",
-    "economia discord",
-    "economy discord",
+    "discord economy",
+    "economy",
+    "json database",
+    "sqlite",
+    "typescript",
     "zeew"
   ],
   "author": "kamerr Ezz",
-  "license": "none",
+  "license": "MIT",
   "bugs": {
     "url": "https://github.com/zeewdev/zeew-eco/issues"
   },
   "homepage": "https://docs.zeew.dev",
-  "dependencies": {
-    "mongoose": "^6.0.14",
-    "uuid": "^8.3.2"
+  "dependencies": {},
+  "peerDependencies": {
+    "better-sqlite3": ">=9.0.0"
+  },
+  "peerDependenciesMeta": {
+    "better-sqlite3": {
+      "optional": true
+    }
+  },
+  "devDependencies": {
+    "@types/better-sqlite3": "^7.6.12",
+    "@types/node": "^22.10.0",
+    "typescript": "^5.7.0"
+  },
+  "engines": {
+    "node": ">=18.0.0"
   }
 }

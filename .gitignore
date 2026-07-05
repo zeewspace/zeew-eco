@@ -1,4 +1,9 @@
 /node_modules
-mysql.js
-test.js
-jsdoc.json
+/dist
+*.js.map
+*.d.ts
+!src/**/*.ts
+*.db
+*.json
+!package.json
+!tsconfig.json
